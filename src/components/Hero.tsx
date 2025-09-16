@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePortfolio } from "@/contexts/PortfolioDataContext";
 import heroImage from "@/assets/hero-aerospace.jpg";
 
 const Hero = () => {
+  const { data } = usePortfolio();
+  const { personalInfo } = data;
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -15,33 +20,37 @@ const Hero = () => {
         <div className="absolute inset-0 hero-gradient opacity-85"></div>
       </div>
 
+      {/* Theme Toggle */}
+      <div className="absolute top-6 right-6 z-20">
+        <ThemeToggle />
+      </div>
+
       {/* Hero Content */}
       <div className="container mx-auto px-4 z-10 text-center">
         <div className="max-w-4xl mx-auto animate-fade-up">
           <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground mb-6 leading-tight">
-            Lohit Prakash
+            {personalInfo.name.split(' ').slice(0, 2).join(' ')}
             <span className="block text-secondary text-3xl md:text-4xl font-medium mt-2">
-              Sundararajan
+              {personalInfo.name.split(' ').slice(2).join(' ')}
             </span>
           </h1>
           
           <p className="text-xl md:text-2xl text-primary-foreground/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Aerospace & Electronics Engineer passionate about drone technology, 
-            control systems, and pioneering solutions in space exploration
+            {personalInfo.description}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <div className="flex items-center gap-2 text-primary-foreground/80">
               <MapPin className="w-5 h-5" />
-              <span>Chennai, Tamil Nadu</span>
+              <span>{personalInfo.location}</span>
             </div>
             <div className="flex items-center gap-2 text-primary-foreground/80">
               <Phone className="w-5 h-5" />
-              <span>+91 93455 20182</span>
+              <span>{personalInfo.phone}</span>
             </div>
             <div className="flex items-center gap-2 text-primary-foreground/80">
               <Mail className="w-5 h-5" />
-              <span>sjlohitp@gmail.com</span>
+              <span>{personalInfo.email}</span>
             </div>
           </div>
 

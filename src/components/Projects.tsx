@@ -1,70 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { usePortfolio } from "@/contexts/PortfolioDataContext";
 import { Rocket, Zap, Satellite, Cog, Radio, Cpu } from "lucide-react";
 
 const Projects = () => {
-  const projects = [
-    {
-      title: "Soft-Landing of Rockets Using Sliding Mode Control Algorithm",
-      period: "Aug 2024 - Present",
-      institution: "IIT Madras, Chennai",
-      type: "Major Project",
-      icon: Rocket,
-      description: "Developing advanced control algorithms using Sliding Mode Control to achieve precision soft-landing of rockets, addressing stability and accuracy challenges under dynamic flight conditions.",
-      technologies: ["Control Theory", "MATLAB/Simulink", "Aerospace Dynamics", "Algorithm Development"],
-      status: "Ongoing"
-    },
-    {
-      title: "Comprehensive Development & Implementation of Drone Swarming Algorithm",
-      period: "May 2024 - July 2024", 
-      institution: "IIT Madras, Chennai",
-      type: "Internship Project",
-      icon: Radio,
-      description: "Designed and built autonomous drone systems with swarming capabilities, integrating Pixhawk for flight control, Raspberry Pi 4 for computational processing, and Mission Planner for mission coordination.",
-      technologies: ["Raspberry Pi", "Pixhawk", "Mission Planner", "QGroundControl", "Autonomous Systems"],
-      status: "Completed"
-    },
-    {
-      title: "SIMO DC-DC Boost Converter with Model Predictive Control",
-      period: "2023-2024",
-      institution: "NIT Puducherry, Karaikal",
-      type: "Research Project",
-      icon: Zap,
-      description: "Engineered a multiport converter topology for applications requiring multiple output channels, utilizing Model Predictive Control (MPC) to regulate output voltages and minimize cross-regulation effects.",
-      technologies: ["Power Electronics", "MPC", "Circuit Design", "MATLAB"],
-      status: "Completed"
-    },
-    {
-      title: "Linearly Polarised Dual Band Patch Antenna for Gaganyaan Applications",
-      period: "Dec 2023 - Jan 2024",
-      institution: "ISRO, Bangalore",
-      type: "Internship Project",
-      icon: Satellite,
-      description: "Developed specialized patch antenna for Indian space missions, designed for GPS and NavIC satellite communication at 1.17 GHz and 1.57 GHz frequencies with linear polarization characteristics.",
-      technologies: ["Ansys HFSS", "Antenna Design", "Satellite Communication", "RF Engineering"],
-      status: "Completed"
-    },
-    {
-      title: "Analysis of Inductor Current Ripple Minimization in PV-Fed Interleaved Modular DC-DC Converter",
-      period: "2023 - 2024",
-      institution: "NIT Puducherry, Karaikal",
-      type: "Research Project (Patented)",
-      icon: Cog,
-      description: "Developed and patented innovative method to reduce inductor current ripple in Modular Multilevel Converters, achieving 2% efficiency improvement and enabling optimal power extraction under partial shading conditions.",
-      technologies: ["Solar PV", "MPPT", "Converter Design", "Patent Filed"],
-      status: "Patented"
-    },
-    {
-      title: "Modular Multilevel Converter for Cross-Regulation-Free SIMO Applications",
-      period: "2023 - 2024", 
-      institution: "NIT Puducherry, Karaikal",
-      type: "Research Project",
-      icon: Cpu,
-      description: "Designed novel converter topology for multi-source electric vehicle systems, enabling independent voltage regulation for each port, validated through comprehensive Small Signal Analysis and hardware prototyping.",
-      technologies: ["Power Electronics", "Electric Vehicles", "Small Signal Analysis", "Hardware Validation"],
-      status: "Completed"
-    }
-  ];
+  const { data } = usePortfolio();
+  const { projects } = data;
+
+  const iconMap: { [key: string]: any } = {
+    "Major Project": Rocket,
+    "Internship Project": Radio,
+    "Research Project": Zap,
+    "Research Project (Patented)": Cog,
+    "Personal Project": Cpu,
+    "default": Satellite
+  };
 
   return (
     <section className="py-20 bg-muted/30">
@@ -82,7 +32,7 @@ const Projects = () => {
 
           <div className="grid lg:grid-cols-2 gap-8">
             {projects.map((project, index) => {
-              const IconComponent = project.icon;
+              const IconComponent = iconMap[project.type] || iconMap.default;
               return (
                 <Card key={index} className="card-gradient shadow-soft hover:shadow-medium transition-spring group h-full">
                   <CardHeader>

@@ -1,7 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, BookOpen, Lightbulb } from "lucide-react";
+import { usePortfolio } from "@/contexts/PortfolioDataContext";
 
 const About = () => {
+  const { data } = usePortfolio();
+  const { personalInfo } = data;
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -10,9 +14,7 @@ const About = () => {
             About Me
           </h2>
           <p className="text-xl text-muted-foreground leading-relaxed">
-            I'm an aerospace and electronics enthusiast pursuing a career in electrical and 
-            electronics engineering, exploring cutting-edge technologies with passion, 
-            technical skills, and unwavering dedication to innovation.
+            {personalInfo.description}
           </p>
         </div>
 
