@@ -9,6 +9,9 @@ export interface Project {
   description: string;
   technologies: string[];
   status: string;
+  images?: string[];
+  githubLink?: string;
+  liveLink?: string;
 }
 
 export interface Experience {
@@ -77,9 +80,12 @@ const defaultData: PortfolioData = {
       period: "Aug 2024 - Present",
       institution: "IIT Madras, Chennai",
       type: "Major Project",
-      description: "Developing advanced control algorithms using Sliding Mode Control to achieve precision soft-landing of rockets, addressing stability and accuracy challenges under dynamic flight conditions.",
-      technologies: ["Control Theory", "MATLAB/Simulink", "Aerospace Dynamics", "Algorithm Development"],
-      status: "Ongoing"
+      description: "Developing advanced control algorithms using Sliding Mode Control to achieve precision soft-landing of rockets, addressing stability and accuracy challenges under dynamic flight conditions. This research focuses on robust control systems that can handle uncertainties and disturbances in real-time flight scenarios.",
+      technologies: ["Control Theory", "MATLAB/Simulink", "Aerospace Dynamics", "Algorithm Development", "Python", "Simulink", "Control Systems"],
+      status: "Ongoing",
+      images: ["/placeholder.svg", "/placeholder.svg"],
+      githubLink: "https://github.com/example/rocket-landing-control",
+      liveLink: "https://rocket-sim-demo.netlify.app"
     },
     {
       id: '2',
@@ -87,9 +93,37 @@ const defaultData: PortfolioData = {
       period: "May 2024 - July 2024",
       institution: "IIT Madras, Chennai",
       type: "Internship Project",
-      description: "Designed and built autonomous drone systems with swarming capabilities, integrating Pixhawk for flight control, Raspberry Pi 4 for computational processing, and Mission Planner for mission coordination.",
-      technologies: ["Raspberry Pi", "Pixhawk", "Mission Planner", "QGroundControl", "Autonomous Systems"],
-      status: "Completed"
+      description: "Designed and built autonomous drone systems with swarming capabilities, integrating Pixhawk for flight control, Raspberry Pi 4 for computational processing, and Mission Planner for mission coordination. The project involved developing coordination algorithms for multiple drones to work together in formation flight and obstacle avoidance scenarios.",
+      technologies: ["Raspberry Pi", "Pixhawk", "Mission Planner", "QGroundControl", "Autonomous Systems", "Python", "ROS", "Computer Vision"],
+      status: "Completed",
+      images: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
+      githubLink: "https://github.com/example/drone-swarm-control",
+      liveLink: "https://drone-swarm-demo.netlify.app"
+    },
+    {
+      id: '3',
+      title: "Dual-Band Patch Antenna Design for Satellite Communication",
+      period: "Dec 2023 - Jan 2024", 
+      institution: "ISRO, Bangalore",
+      type: "Research Project",
+      description: "Designed and simulated dual-band patch antenna systems for GPS and NavIC frequencies on Indian satellites. Conducted electromagnetic field analysis and optimization using Ansys HFSS to achieve optimal radiation patterns and gain characteristics for space-based communication systems.",
+      technologies: ["Ansys HFSS", "Antenna Design", "Electromagnetic Simulation", "RF Engineering", "MATLAB", "Satellite Communication"],
+      status: "Completed",
+      images: ["/placeholder.svg", "/placeholder.svg"],
+      githubLink: "https://github.com/example/satellite-antenna-design"
+    },
+    {
+      id: '4',
+      title: "IoT-Based Smart Irrigation System",
+      period: "Jan 2023 - Apr 2023",
+      institution: "Personal Project",
+      type: "Personal Project", 
+      description: "Developed an intelligent irrigation system using IoT sensors and machine learning algorithms to optimize water usage in agricultural applications. The system monitors soil moisture, weather conditions, and crop requirements to automate irrigation scheduling.",
+      technologies: ["Arduino", "IoT Sensors", "Machine Learning", "Python", "Firebase", "React", "Node.js"],
+      status: "Completed",
+      images: ["/placeholder.svg"],
+      githubLink: "https://github.com/example/smart-irrigation",
+      liveLink: "https://smart-irrigation-dashboard.netlify.app"
     }
   ],
   experience: [

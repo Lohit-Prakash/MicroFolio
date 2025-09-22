@@ -1,11 +1,21 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { usePortfolio } from "@/contexts/PortfolioDataContext";
-import { Rocket, Zap, Satellite, Cog, Radio, Cpu } from "lucide-react";
+import { Rocket, Zap, Satellite, Cog, Radio, Cpu, Eye } from "lucide-react";
+import ProjectModal from "@/components/modals/ProjectModal";
 
 const Projects = () => {
   const { data } = usePortfolio();
   const { projects } = data;
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleProjectClick = (project: any) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
 
   const iconMap: { [key: string]: any } = {
     "Major Project": Rocket,
@@ -34,7 +44,11 @@ const Projects = () => {
             {projects.map((project, index) => {
               const IconComponent = iconMap[project.type] || iconMap.default;
               return (
-                <Card key={index} className="card-gradient shadow-soft hover:shadow-medium transition-spring group h-full">
+                <Card 
+                  key={index} 
+                  className="card-gradient shadow-soft hover:shadow-medium transition-spring group h-full cursor-pointer project-card-hover"
+                  onClick={() => handleProjectClick(project)}
+                >
                   <CardHeader>
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 accent-gradient rounded-lg flex items-center justify-center group-hover:scale-110 transition-spring flex-shrink-0">
@@ -49,7 +63,7 @@ const Projects = () => {
                             {project.type}
                           </Badge>
                         </div>
-                        <CardTitle className="text-xl leading-tight mb-2">
+                        <CardTitle className="text-xl leading-tight mb-2 group-hover:text-primary transition-colors">
                           {project.title}
                         </CardTitle>
                         <div className="text-sm text-muted-foreground">
@@ -61,20 +75,38 @@ const Projects = () => {
                   </CardHeader>
                   
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed mb-6">
+                    <p className="text-muted-foreground leading-relaxed mb-6 line-clamp-3">
                       {project.description}
                     </p>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-3 mb-4">
                       <h4 className="font-semibold text-sm text-foreground">Key Technologies</h4>
                       <div className="flex flex-wrap gap-2">
-                        {project.technologies.map((tech, idx) => (
+                        {project.technologies.slice(0, 4).map((tech, idx) => (
                           <Badge key={idx} variant="outline" className="text-xs border-primary/20">
                             {tech}
                           </Badge>
                         ))}
+                        {project.technologies.length > 4 && (
+                          <Badge variant="outline" className="text-xs border-primary/20">
+                            +{project.technologies.length - 4} more
+                          </Badge>
+                        )}
                       </div>
                     </div>
+
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleProjectClick(project);
+                      }}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
                   </CardContent>
                 </Card>
               );
@@ -82,6 +114,15 @@ const Projects = () => {
           </div>
         </div>
       </div>
+
+      <ProjectModal 
+        project={selectedProject}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedProject(null);
+        }}
+      />
     </section>
   );
 };
