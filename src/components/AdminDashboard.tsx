@@ -9,6 +9,9 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import EditProfile from "./admin/EditProfile";
 import EditProjects from "./admin/EditProjects";
 import EditExperience from "./admin/EditExperience";
+import EditEducation from "./admin/EditEducation";
+import EditContact from "./admin/EditContact";
+import EditAnalytics from "./admin/EditAnalytics";
 import { User, Briefcase, GraduationCap, FolderOpen, Mail, BarChart3, Settings, Menu, Home, LogOut } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -110,62 +113,11 @@ const AdminDashboard = () => {
       case "experience":
         return <EditExperience />;
       case "education":
-        return (
-          <Card className="card-modern animate-scale-up">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GraduationCap className="w-5 h-5" />
-                Education Management
-              </CardTitle>
-              <CardDescription>Manage your educational background</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <GraduationCap className="w-16 h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-                <p className="text-muted-foreground text-lg">Education management features coming soon...</p>
-                <p className="text-sm text-muted-foreground/70 mt-2">We're working on bringing you comprehensive education management tools.</p>
-              </div>
-            </CardContent>
-          </Card>
-        );
+        return <EditEducation />;
       case "contact":
-        return (
-          <Card className="card-modern animate-scale-up">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5" />
-                Contact Settings
-              </CardTitle>
-              <CardDescription>Manage contact forms and messages</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <Mail className="w-16 h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-                <p className="text-muted-foreground text-lg">Contact management features coming soon...</p>
-                <p className="text-sm text-muted-foreground/70 mt-2">Soon you'll be able to manage all your contact forms and messages here.</p>
-              </div>
-            </CardContent>
-          </Card>
-        );
+        return <EditContact />;
       case "analytics":
-        return (
-          <Card className="card-modern animate-scale-up">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5" />
-                Portfolio Analytics
-              </CardTitle>
-              <CardDescription>View visitor statistics and engagement metrics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <BarChart3 className="w-16 h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-                <p className="text-muted-foreground text-lg">Analytics dashboard coming soon...</p>
-                <p className="text-sm text-muted-foreground/70 mt-2">Get insights into your portfolio's performance and visitor engagement.</p>
-              </div>
-            </CardContent>
-          </Card>
-        );
+        return <EditAnalytics />;
       default:
         return <EditProfile />;
     }

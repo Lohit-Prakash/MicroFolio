@@ -52,7 +52,7 @@ const Index = () => {
       {/* Navigation */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center justify-center py-4">
             <nav className="flex gap-1 bg-muted/50 p-1 rounded-xl">
               <Button
                 variant="ghost"
@@ -104,16 +104,6 @@ const Index = () => {
                 <Mail className="w-4 h-4" />
                 <span className="hidden sm:inline">Contact</span>
               </Button>
-              <Button
-                variant="ghost"
-                onClick={() => scrollToSection('login')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  activeSection === 'login' ? 'bg-primary text-primary-foreground' : ''
-                }`}
-              >
-                <LogIn className="w-4 h-4" />
-                <span className="hidden sm:inline">Login</span>
-              </Button>
             </nav>
             
             <ThemeToggle />
@@ -142,11 +132,6 @@ const Index = () => {
         <Contact />
       </section>
       
-      <section id="login" className="scroll-mt-20">
-        <div className="min-h-screen flex items-center justify-center py-20">
-          <Login />
-        </div>
-      </section>
     </main>
   );
 };
