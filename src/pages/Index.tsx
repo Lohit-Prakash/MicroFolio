@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { User, Briefcase, FolderOpen, GraduationCap, Mail, LogIn } from "lucide-react";
 import Hero from "@/components/Hero";
@@ -12,93 +11,142 @@ import Login from "@/components/Login";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("about");
+  const [activeSection, setActiveSection] = useState("about");
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+      setActiveSection(sectionId);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['about', 'education', 'experience', 'projects', 'contact', 'login'];
+      const scrollPosition = window.scrollY + 200;
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <main className="min-h-screen">
       <Hero />
       
-      {/* Navigation Tabs */}
+      {/* Navigation */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
         <div className="container mx-auto px-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex items-center justify-between py-4">
-              <TabsList className="grid w-fit grid-cols-6 gap-1 bg-muted/50 p-1 rounded-xl">
-                <TabsTrigger 
-                  value="about" 
-                  className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
-                >
-                  <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">About</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="education"
-                  className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
-                >
-                  <GraduationCap className="w-4 h-4" />
-                  <span className="hidden sm:inline">Education</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="experience"
-                  className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
-                >
-                  <Briefcase className="w-4 h-4" />
-                  <span className="hidden sm:inline">Experience</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="projects"
-                  className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
-                >
-                  <FolderOpen className="w-4 h-4" />
-                  <span className="hidden sm:inline">Projects</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="contact"
-                  className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
-                >
-                  <Mail className="w-4 h-4" />
-                  <span className="hidden sm:inline">Contact</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="login"
-                  className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span className="hidden sm:inline">Login</span>
-                </TabsTrigger>
-              </TabsList>
-              
-              <ThemeToggle />
-            </div>
+          <div className="flex items-center justify-between py-4">
+            <nav className="flex gap-1 bg-muted/50 p-1 rounded-xl">
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection('about')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  activeSection === 'about' ? 'bg-primary text-primary-foreground' : ''
+                }`}
+              >
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">About</span>
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection('education')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  activeSection === 'education' ? 'bg-primary text-primary-foreground' : ''
+                }`}
+              >
+                <GraduationCap className="w-4 h-4" />
+                <span className="hidden sm:inline">Education</span>
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection('experience')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  activeSection === 'experience' ? 'bg-primary text-primary-foreground' : ''
+                }`}
+              >
+                <Briefcase className="w-4 h-4" />
+                <span className="hidden sm:inline">Experience</span>
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection('projects')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  activeSection === 'projects' ? 'bg-primary text-primary-foreground' : ''
+                }`}
+              >
+                <FolderOpen className="w-4 h-4" />
+                <span className="hidden sm:inline">Projects</span>
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection('contact')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  activeSection === 'contact' ? 'bg-primary text-primary-foreground' : ''
+                }`}
+              >
+                <Mail className="w-4 h-4" />
+                <span className="hidden sm:inline">Contact</span>
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection('login')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  activeSection === 'login' ? 'bg-primary text-primary-foreground' : ''
+                }`}
+              >
+                <LogIn className="w-4 h-4" />
+                <span className="hidden sm:inline">Login</span>
+              </Button>
+            </nav>
             
-            <TabsContent value="about" className="mt-0">
-              <About />
-            </TabsContent>
-            
-            <TabsContent value="education" className="mt-0">
-              <Education />
-            </TabsContent>
-            
-            <TabsContent value="experience" className="mt-0">
-              <Experience />
-            </TabsContent>
-            
-            <TabsContent value="projects" className="mt-0">
-              <Projects />
-            </TabsContent>
-            
-            <TabsContent value="contact" className="mt-0">
-              <Contact />
-            </TabsContent>
-            
-            <TabsContent value="login" className="mt-0">
-              <div className="min-h-screen flex items-center justify-center py-20">
-                <Login />
-              </div>
-            </TabsContent>
-          </Tabs>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
+
+      {/* All Sections */}
+      <section id="about" className="scroll-mt-20">
+        <About />
+      </section>
+      
+      <section id="education" className="scroll-mt-20">
+        <Education />
+      </section>
+      
+      <section id="experience" className="scroll-mt-20">
+        <Experience />
+      </section>
+      
+      <section id="projects" className="scroll-mt-20">
+        <Projects />
+      </section>
+      
+      <section id="contact" className="scroll-mt-20">
+        <Contact />
+      </section>
+      
+      <section id="login" className="scroll-mt-20">
+        <div className="min-h-screen flex items-center justify-center py-20">
+          <Login />
+        </div>
+      </section>
     </main>
   );
 };
