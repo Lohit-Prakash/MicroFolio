@@ -101,7 +101,7 @@ const Contact = () => {
                       </a>
                     </Button>
                     
-                    <div className="text-primary-foreground/70 text-sm">
+                    <div className="text-primary-foreground/70 text-sm mb-6">
                       <p>Available for:</p>
                       <div className="mt-2 space-y-1">
                         <div>• Research Collaborations</div>
@@ -110,6 +110,21 @@ const Contact = () => {
                         <div>• Academic Discussions</div>
                       </div>
                     </div>
+                    
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      className="w-full border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+                      onClick={() => {
+                        // This will be functional once Supabase is connected
+                        console.log('Download resume clicked');
+                      }}
+                    >
+                      <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download Resume
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

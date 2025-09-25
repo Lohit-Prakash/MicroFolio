@@ -13,6 +13,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const Index = () => {
   const [activeSection, setActiveSection] = useState("about");
 
+  const navigateToAdmin = () => {
+    window.location.href = '/admin';
+  };
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -26,7 +30,7 @@ const Index = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['about', 'education', 'experience', 'projects', 'contact', 'login'];
+      const sections = ['about', 'education', 'experience', 'projects', 'contact'];
       const scrollPosition = window.scrollY + 200;
 
       for (const section of sections) {
@@ -104,16 +108,6 @@ const Index = () => {
                 <Mail className="w-4 h-4" />
                 <span className="hidden sm:inline">Contact</span>
               </Button>
-              <Button
-                variant="ghost"
-                onClick={() => scrollToSection('login')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  activeSection === 'login' ? 'bg-primary text-primary-foreground' : ''
-                }`}
-              >
-                <LogIn className="w-4 h-4" />
-                <span className="hidden sm:inline">Login</span>
-              </Button>
             </nav>
             
             <ThemeToggle />
@@ -142,9 +136,30 @@ const Index = () => {
         <Contact />
       </section>
       
-      <section id="login" className="scroll-mt-20">
-        <Login />
-      </section>
+      {/* Admin Login Button at Bottom */}
+      <div className="py-16 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="card-glass p-8 rounded-3xl shadow-2xl backdrop-blur-md border border-white/10">
+              <h3 className="text-2xl font-semibold text-foreground mb-4">
+                Admin Access
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Access the admin panel to manage portfolio content
+              </p>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="px-8 py-3 text-lg font-medium border-2 border-accent/30 text-foreground hover:bg-accent/10 hover:border-accent shadow-medium hover:shadow-strong transition-elegant hover:scale-[1.02] rounded-2xl backdrop-blur-sm"
+                onClick={navigateToAdmin}
+              >
+                <LogIn className="w-5 h-5 mr-3" />
+                Admin Login
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
       
     </main>
   );

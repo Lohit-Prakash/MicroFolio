@@ -84,46 +84,56 @@ const Hero = () => {
 
             {/* Social Links */}
             <div className="flex justify-center gap-4 mb-8 animate-fade-in animation-delay-1000">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
-                onClick={() => window.open(personalInfo.linkedin || 'https://linkedin.com/in/yourprofile', '_blank')}
-              >
-                <Linkedin className="w-5 h-5 hover:text-blue-600 transition-colors" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
-                onClick={() => window.open(personalInfo.github || 'https://github.com/yourprofile', '_blank')}
-              >
-                <Github className="w-5 h-5 hover:text-gray-800 dark:hover:text-white transition-colors" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
-                onClick={() => window.open(personalInfo.youtube || 'https://youtube.com/@yourprofile', '_blank')}
-              >
-                <Youtube className="w-5 h-5 hover:text-red-600 transition-colors" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
-                onClick={() => window.open(personalInfo.instagram || 'https://instagram.com/yourprofile', '_blank')}
-              >
-                <Instagram className="w-5 h-5 hover:text-pink-600 transition-colors" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
-                onClick={() => window.open(personalInfo.twitter || 'https://twitter.com/yourprofile', '_blank')}
-              >
-                <Twitter className="w-5 h-5 hover:text-blue-400 transition-colors" />
-              </Button>
+              {personalInfo.linkedin && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                  onClick={() => window.open(personalInfo.linkedin, '_blank')}
+                >
+                  <Linkedin className="w-5 h-5 hover:text-blue-600 transition-colors" />
+                </Button>
+              )}
+              {personalInfo.github && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                  onClick={() => window.open(personalInfo.github, '_blank')}
+                >
+                  <Github className="w-5 h-5 hover:text-gray-800 dark:hover:text-white transition-colors" />
+                </Button>
+              )}
+              {personalInfo.youtube && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                  onClick={() => window.open(personalInfo.youtube, '_blank')}
+                >
+                  <Youtube className="w-5 h-5 hover:text-red-600 transition-colors" />
+                </Button>
+              )}
+              {personalInfo.instagram && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                  onClick={() => window.open(personalInfo.instagram, '_blank')}
+                >
+                  <Instagram className="w-5 h-5 hover:text-pink-600 transition-colors" />
+                </Button>
+              )}
+              {personalInfo.twitter && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                  onClick={() => window.open(personalInfo.twitter, '_blank')}
+                >
+                  <Twitter className="w-5 h-5 hover:text-blue-400 transition-colors" />
+                </Button>
+              )}
             </div>
           </div>
 
@@ -149,22 +159,9 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Resume Download - Bottom Section */}
-      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-10 animate-fade-in animation-delay-1400">
-        <div className="card-glass p-6 rounded-3xl shadow-2xl backdrop-blur-md border border-white/10">
-          <Button 
-            variant="ghost" 
-            className="hover-scale text-lg font-medium px-8 py-3 rounded-2xl bg-gradient-to-r from-accent/10 to-primary/10 hover:from-accent/20 hover:to-primary/20 transition-all duration-300" 
-            onClick={handleDownloadResume}
-          >
-            <Download className="w-5 h-5 mr-3" />
-            Download Resume
-          </Button>
-        </div>
-      </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-pulse-glow">
+      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-10 animate-pulse-glow">
         <div className="w-8 h-12 border-2 border-accent/40 rounded-full flex justify-center backdrop-blur-sm">
           <div className="w-1 h-4 bg-accent rounded-full mt-2 animate-float"></div>
         </div>
