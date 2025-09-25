@@ -44,8 +44,8 @@ const Hero = () => {
         <div className="max-w-5xl mx-auto">
           {/* Profile Picture */}
           <div className="mb-8 animate-fade-up">
-            <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4 shadow-strong">
-              <div className="w-28 h-28 rounded-full bg-muted flex items-center justify-center text-4xl font-bold text-primary">
+            <div className="w-40 h-40 mx-auto rounded-full bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 p-1 shadow-2xl shadow-primary/20 backdrop-blur-sm">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-background/95 to-muted/50 flex items-center justify-center text-5xl font-bold text-primary shadow-inner border border-white/10">
                 {personalInfo.name.split(' ').map(n => n[0]).join('')}
               </div>
             </div>
@@ -83,27 +83,52 @@ const Hero = () => {
             </div>
 
             {/* Social Links */}
-            <div className="flex justify-center gap-4 mb-12 animate-fade-in animation-delay-1000">
-              <Button variant="ghost" size="icon" className="hover-scale rounded-full card-minimal">
-                <Linkedin className="w-5 h-5" />
+            <div className="flex justify-center gap-4 mb-8 animate-fade-in animation-delay-1000">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                onClick={() => window.open(personalInfo.linkedin || 'https://linkedin.com/in/yourprofile', '_blank')}
+              >
+                <Linkedin className="w-5 h-5 hover:text-blue-600 transition-colors" />
               </Button>
-              <Button variant="ghost" size="icon" className="hover-scale rounded-full card-minimal">
-                <Github className="w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                onClick={() => window.open(personalInfo.github || 'https://github.com/yourprofile', '_blank')}
+              >
+                <Github className="w-5 h-5 hover:text-gray-800 dark:hover:text-white transition-colors" />
               </Button>
-              <Button variant="ghost" size="icon" className="hover-scale rounded-full card-minimal">
-                <Youtube className="w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                onClick={() => window.open(personalInfo.youtube || 'https://youtube.com/@yourprofile', '_blank')}
+              >
+                <Youtube className="w-5 h-5 hover:text-red-600 transition-colors" />
               </Button>
-              <Button variant="ghost" size="icon" className="hover-scale rounded-full card-minimal">
-                <Instagram className="w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                onClick={() => window.open(personalInfo.instagram || 'https://instagram.com/yourprofile', '_blank')}
+              >
+                <Instagram className="w-5 h-5 hover:text-pink-600 transition-colors" />
               </Button>
-              <Button variant="ghost" size="icon" className="hover-scale rounded-full card-minimal">
-                <Twitter className="w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                onClick={() => window.open(personalInfo.twitter || 'https://twitter.com/yourprofile', '_blank')}
+              >
+                <Twitter className="w-5 h-5 hover:text-blue-400 transition-colors" />
               </Button>
             </div>
           </div>
 
           <div className="animate-scale-up" style={{animationDelay: '0.7s'}}>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Button 
                 size="lg" 
                 className="px-10 py-4 text-lg font-medium bg-accent hover:bg-accent/90 text-accent-foreground shadow-strong hover:shadow-glow transition-elegant hover:scale-[1.02] rounded-2xl"
@@ -120,15 +145,21 @@ const Hero = () => {
                 Contact Me
               </Button>
             </div>
-
-            {/* Resume Download */}
-            <div className="animate-fade-in animation-delay-1400">
-              <Button variant="ghost" className="hover-scale card-minimal" onClick={handleDownloadResume}>
-                <Download className="w-4 h-4 mr-2" />
-                Download Resume
-              </Button>
-            </div>
           </div>
+        </div>
+      </div>
+
+      {/* Resume Download - Bottom Section */}
+      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-10 animate-fade-in animation-delay-1400">
+        <div className="card-glass p-6 rounded-3xl shadow-2xl backdrop-blur-md border border-white/10">
+          <Button 
+            variant="ghost" 
+            className="hover-scale text-lg font-medium px-8 py-3 rounded-2xl bg-gradient-to-r from-accent/10 to-primary/10 hover:from-accent/20 hover:to-primary/20 transition-all duration-300" 
+            onClick={handleDownloadResume}
+          >
+            <Download className="w-5 h-5 mr-3" />
+            Download Resume
+          </Button>
         </div>
       </div>
 

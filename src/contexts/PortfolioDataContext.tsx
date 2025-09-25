@@ -41,6 +41,12 @@ export interface PersonalInfo {
   location: string;
   phone: string;
   email: string;
+  linkedin?: string;
+  github?: string;
+  youtube?: string;
+  instagram?: string;
+  twitter?: string;
+  scholar?: string;
 }
 
 interface PortfolioData {
@@ -71,7 +77,13 @@ const defaultData: PortfolioData = {
     description: "Aerospace & Electronics Engineer passionate about drone technology, control systems, and pioneering solutions in space exploration",
     location: "Chennai, Tamil Nadu",
     phone: "+91 93455 20182",
-    email: "sjlohitp@gmail.com"
+    email: "sjlohitp@gmail.com",
+    linkedin: "https://linkedin.com/in/lohitprakash",
+    github: "https://github.com/lohitprakash",
+    youtube: "https://youtube.com/@lohitprakash",
+    instagram: "https://instagram.com/lohitprakash",
+    twitter: "https://twitter.com/lohitprakash",
+    scholar: "https://scholar.google.com/citations?user=lohitprakash"
   },
   projects: [
     {

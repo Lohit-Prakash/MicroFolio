@@ -1,121 +1,147 @@
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { usePortfolio, PersonalInfo } from "@/contexts/PortfolioDataContext";
+import { usePortfolio } from "@/contexts/PortfolioDataContext";
 import { useToast } from "@/hooks/use-toast";
-import { User } from "lucide-react";
+import { Upload, User } from "lucide-react";
 
 const EditProfile = () => {
   const { data, updatePersonalInfo } = usePortfolio();
   const { toast } = useToast();
-  const [formData, setFormData] = useState<PersonalInfo>(data.personalInfo);
+  const [formData, setFormData] = useState(data.personalInfo);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updatePersonalInfo(formData);
     toast({
       title: "Profile Updated",
-      description: "Your personal information has been successfully updated.",
+      description: "Your profile has been updated successfully!",
     });
   };
 
-  const handleChange = (field: keyof PersonalInfo, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleProfilePictureUpload = () => {
+    toast({
+      title: "Feature Coming Soon",
+      description: "Profile picture upload requires Supabase integration for file storage.",
+      variant: "destructive",
+    });
   };
 
   return (
-    <Card className="card-modern animate-scale-up">
-      <CardHeader className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <User className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-xl">Edit Personal Information</CardTitle>
-            <CardDescription>Update your personal details and contact information</CardDescription>
+    <Card className="max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <User className="w-5 h-5" />
+          Edit Profile
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Profile Picture Upload */}
+        <div className="space-y-2">
+          <Label>Profile Picture</Label>
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 p-1 shadow-lg">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-background/95 to-muted/50 flex items-center justify-center text-xl font-bold text-primary">
+                {formData.name.split(' ').map(n => n[0]).join('')}
+              </div>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={handleProfilePictureUpload}
+              className="flex items-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Picture
+            </Button>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-8">
-        <form onSubmit={handleSubmit} className="space-responsive">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-3 group">
-              <Label htmlFor="name" className="text-sm font-semibold text-foreground/80">Full Name</Label>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
+                name="name"
                 value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                placeholder="Your full name"
-                className="transition-all duration-300 focus:shadow-glow focus:scale-[1.02] hover:shadow-medium"
+                onChange={handleChange}
+                placeholder="Enter your full name"
               />
             </div>
-            <div className="space-y-3 group">
-              <Label htmlFor="subtitle" className="text-sm font-semibold text-foreground/80">Professional Subtitle</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="subtitle">Professional Subtitle</Label>
               <Input
                 id="subtitle"
+                name="subtitle"
                 value={formData.subtitle}
-                onChange={(e) => handleChange('subtitle', e.target.value)}
-                placeholder="e.g., Aerospace Engineer"
-                className="transition-all duration-300 focus:shadow-glow focus:scale-[1.02] hover:shadow-medium"
+                onChange={handleChange}
+                placeholder="e.g., Software Engineer"
               />
             </div>
           </div>
 
-          <div className="space-y-3 group">
-            <Label htmlFor="description" className="text-sm font-semibold text-foreground/80">Professional Description</Label>
+          <div className="space-y-2">
+            <Label htmlFor="description">Professional Description</Label>
             <Textarea
               id="description"
+              name="description"
               value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Brief description of your expertise and passion"
+              onChange={handleChange}
+              placeholder="Write a brief description about yourself"
               rows={4}
-              className="transition-all duration-300 focus:shadow-glow focus:scale-[1.01] hover:shadow-medium resize-none"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="space-y-3 group">
-              <Label htmlFor="location" className="text-sm font-semibold text-foreground/80">Location</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
+                name="location"
                 value={formData.location}
-                onChange={(e) => handleChange('location', e.target.value)}
-                placeholder="City, State"
-                className="transition-all duration-300 focus:shadow-glow focus:scale-[1.02] hover:shadow-medium"
+                onChange={handleChange}
+                placeholder="City, Country"
               />
             </div>
-            <div className="space-y-3 group">
-              <Label htmlFor="phone" className="text-sm font-semibold text-foreground/80">Phone Number</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
               <Input
                 id="phone"
+                name="phone"
                 value={formData.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
-                placeholder="+91 XXXXX XXXXX"
-                className="transition-all duration-300 focus:shadow-glow focus:scale-[1.02] hover:shadow-medium"
-              />
-            </div>
-            <div className="space-y-3 group sm:col-span-2 lg:col-span-1">
-              <Label htmlFor="email" className="text-sm font-semibold text-foreground/80">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                placeholder="your.email@domain.com"
-                className="transition-all duration-300 focus:shadow-glow focus:scale-[1.02] hover:shadow-medium"
+                onChange={handleChange}
+                placeholder="+1 234 567 8900"
               />
             </div>
           </div>
 
-          <div className="pt-4">
-            <Button type="submit" size="lg" className="w-full sm:w-auto hover-lift transition-spring shadow-medium hover:shadow-strong">
-              <User className="w-4 h-4 mr-2" />
-              Update Profile
-            </Button>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="your.email@example.com"
+            />
           </div>
+
+          <Button type="submit" className="w-full">
+            Save Changes
+          </Button>
         </form>
       </CardContent>
     </Card>

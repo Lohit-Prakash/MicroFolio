@@ -104,6 +104,16 @@ const Index = () => {
                 <Mail className="w-4 h-4" />
                 <span className="hidden sm:inline">Contact</span>
               </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection('login')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  activeSection === 'login' ? 'bg-primary text-primary-foreground' : ''
+                }`}
+              >
+                <LogIn className="w-4 h-4" />
+                <span className="hidden sm:inline">Login</span>
+              </Button>
             </nav>
             
             <ThemeToggle />
@@ -130,6 +140,10 @@ const Index = () => {
       
       <section id="contact" className="scroll-mt-20">
         <Contact />
+      </section>
+      
+      <section id="login" className="scroll-mt-20">
+        <Login />
       </section>
       
     </main>
