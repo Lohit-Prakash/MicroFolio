@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, Github, ExternalLink } from "lucide-react";
+import { X, Github, ExternalLink, FileText } from "lucide-react";
 import { useState } from "react";
 
 interface Project {
@@ -13,6 +13,7 @@ interface Project {
   status: string;
   type: string;
   images?: string[];
+  pdfs?: string[];
   githubLink?: string;
   liveLink?: string;
 }
@@ -116,6 +117,23 @@ const ProjectModal = ({ project, isOpen, onClose }: ProjectModalProps) => {
               <h3 className="font-semibold text-foreground mb-3">Project Description</h3>
               <p className="text-muted-foreground leading-relaxed">{project.description}</p>
             </div>
+
+            {/* PDFs */}
+            {project.pdfs && project.pdfs.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-foreground mb-3">Project Documents</h3>
+                <div className="flex flex-wrap gap-2">
+                  {project.pdfs.map((pdf, index) => (
+                    <Button key={index} variant="outline" size="sm" asChild>
+                      <a href={pdf} target="_blank" rel="noopener noreferrer">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Document {index + 1}
+                      </a>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Links */}
             <div className="flex flex-wrap gap-3 pt-4 border-t">

@@ -10,6 +10,7 @@ export interface Project {
   technologies: string[];
   status: string;
   images?: string[];
+  pdfs?: string[];
   githubLink?: string;
   liveLink?: string;
 }

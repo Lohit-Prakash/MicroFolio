@@ -24,8 +24,14 @@ const EditProjects = () => {
     type: "Research Project",
     description: "",
     technologies: [] as string[],
-    status: "Completed"
+    status: "Completed",
+    images: [] as string[],
+    pdfs: [] as string[],
+    githubLink: "",
+    liveLink: ""
   });
+  const [newImage, setNewImage] = useState("");
+  const [newPdf, setNewPdf] = useState("");
 
   const handleAddProject = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +43,11 @@ const EditProjects = () => {
       type: "Research Project",
       description: "",
       technologies: [],
-      status: "Completed"
+      status: "Completed",
+      images: [],
+      pdfs: [],
+      githubLink: "",
+      liveLink: ""
     });
     setShowAddForm(false);
     toast({
@@ -96,6 +106,68 @@ const EditProjects = () => {
       setNewProject({
         ...newProject,
         technologies: newProject.technologies.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const addImage = (isEditing: boolean) => {
+    if (!newImage.trim()) return;
+    
+    if (isEditing && editingProject) {
+      setEditingProject({
+        ...editingProject,
+        images: [...(editingProject.images || []), newImage.trim()]
+      });
+    } else {
+      setNewProject({
+        ...newProject,
+        images: [...newProject.images, newImage.trim()]
+      });
+    }
+    setNewImage("");
+  };
+
+  const removeImage = (index: number, isEditing: boolean) => {
+    if (isEditing && editingProject) {
+      setEditingProject({
+        ...editingProject,
+        images: (editingProject.images || []).filter((_, i) => i !== index)
+      });
+    } else {
+      setNewProject({
+        ...newProject,
+        images: newProject.images.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const addPdf = (isEditing: boolean) => {
+    if (!newPdf.trim()) return;
+    
+    if (isEditing && editingProject) {
+      setEditingProject({
+        ...editingProject,
+        pdfs: [...(editingProject.pdfs || []), newPdf.trim()]
+      });
+    } else {
+      setNewProject({
+        ...newProject,
+        pdfs: [...newProject.pdfs, newPdf.trim()]
+      });
+    }
+    setNewPdf("");
+  };
+
+  const removePdf = (index: number, isEditing: boolean) => {
+    if (isEditing && editingProject) {
+      setEditingProject({
+        ...editingProject,
+        pdfs: (editingProject.pdfs || []).filter((_, i) => i !== index)
+      });
+    } else {
+      setNewProject({
+        ...newProject,
+        pdfs: newProject.pdfs.filter((_, i) => i !== index)
       });
     }
   };
@@ -238,6 +310,77 @@ const EditProjects = () => {
                     <SelectItem value="Patented">Patented</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-foreground/80">Project Images</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    value={newImage}
+                    onChange={(e) => setNewImage(e.target.value)}
+                    placeholder="Add image URL"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImage(false))}
+                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                  <Button type="button" onClick={() => addImage(false)} variant="outline" className="hover-scale transition-spring">
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {newProject.images.map((img, index) => (
+                    <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
+                      <span className="truncate">{img}</span>
+                      <X className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={() => removeImage(index, false)} />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-foreground/80">Project PDFs</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    value={newPdf}
+                    onChange={(e) => setNewPdf(e.target.value)}
+                    placeholder="Add PDF URL"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addPdf(false))}
+                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                  <Button type="button" onClick={() => addPdf(false)} variant="outline" className="hover-scale transition-spring">
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {newProject.pdfs.map((pdf, index) => (
+                    <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
+                      <span className="truncate">{pdf}</span>
+                      <X className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={() => removePdf(index, false)} />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="githubLink" className="text-sm font-semibold text-foreground/80">GitHub Link</Label>
+                  <Input
+                    id="githubLink"
+                    value={newProject.githubLink}
+                    onChange={(e) => setNewProject({...newProject, githubLink: e.target.value})}
+                    placeholder="https://github.com/..."
+                    className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="liveLink" className="text-sm font-semibold text-foreground/80">Live Demo Link</Label>
+                  <Input
+                    id="liveLink"
+                    value={newProject.liveLink}
+                    onChange={(e) => setNewProject({...newProject, liveLink: e.target.value})}
+                    placeholder="https://..."
+                    className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
@@ -383,6 +526,77 @@ const EditProjects = () => {
                       <X className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" onClick={() => removeTechnology(index, true)} />
                     </Badge>
                   ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-foreground/80">Project Images</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    value={newImage}
+                    onChange={(e) => setNewImage(e.target.value)}
+                    placeholder="Add image URL"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImage(true))}
+                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                  <Button type="button" onClick={() => addImage(true)} variant="outline" className="hover-scale transition-spring">
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {(editingProject.images || []).map((img, index) => (
+                    <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
+                      <span className="truncate">{img}</span>
+                      <X className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={() => removeImage(index, true)} />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-foreground/80">Project PDFs</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    value={newPdf}
+                    onChange={(e) => setNewPdf(e.target.value)}
+                    placeholder="Add PDF URL"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addPdf(true))}
+                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                  <Button type="button" onClick={() => addPdf(true)} variant="outline" className="hover-scale transition-spring">
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {(editingProject.pdfs || []).map((pdf, index) => (
+                    <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
+                      <span className="truncate">{pdf}</span>
+                      <X className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={() => removePdf(index, true)} />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="edit-githubLink" className="text-sm font-semibold text-foreground/80">GitHub Link</Label>
+                  <Input
+                    id="edit-githubLink"
+                    value={editingProject.githubLink || ''}
+                    onChange={(e) => setEditingProject({...editingProject, githubLink: e.target.value})}
+                    placeholder="https://github.com/..."
+                    className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="edit-liveLink" className="text-sm font-semibold text-foreground/80">Live Demo Link</Label>
+                  <Input
+                    id="edit-liveLink"
+                    value={editingProject.liveLink || ''}
+                    onChange={(e) => setEditingProject({...editingProject, liveLink: e.target.value})}
+                    placeholder="https://..."
+                    className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
                 </div>
               </div>
 
