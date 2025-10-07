@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Mail, MapPin, Phone, ChevronDown, Github, Linkedin, Youtube, Instagram, Twitter, Download } from "lucide-react";
+import { Mail, MapPin, Phone, ChevronDown, Github, Linkedin, Youtube, Instagram, Twitter, Download, GraduationCap } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { usePortfolio } from "@/contexts/PortfolioDataContext";
 import heroImage from "@/assets/hero-aerospace.jpg";
@@ -102,6 +102,16 @@ const Hero = () => {
                   onClick={() => window.open(personalInfo.github, '_blank')}
                 >
                   <Github className="w-5 h-5 hover:text-gray-800 dark:hover:text-white transition-colors" />
+                </Button>
+              )}
+              {personalInfo.scholar && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover-scale rounded-full card-minimal transition-all duration-300 hover:shadow-lg hover:bg-accent/10"
+                  onClick={() => window.open(personalInfo.scholar, '_blank')}
+                >
+                  <GraduationCap className="w-5 h-5 hover:text-blue-700 transition-colors" />
                 </Button>
               )}
               {personalInfo.youtube && (

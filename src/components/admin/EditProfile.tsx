@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { usePortfolio } from "@/contexts/PortfolioDataContext";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, User } from "lucide-react";
+import { Upload, User, Linkedin, Github, Youtube, Instagram, Twitter, GraduationCap } from "lucide-react";
 
 const EditProfile = () => {
   const { data, updatePersonalInfo } = usePortfolio();
@@ -137,6 +137,98 @@ const EditProfile = () => {
               onChange={handleChange}
               placeholder="your.email@example.com"
             />
+          </div>
+
+          <div className="space-y-4 pt-4 border-t">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              Social Media Links
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="linkedin" className="flex items-center gap-2">
+                  <Linkedin className="w-4 h-4 text-blue-600" />
+                  LinkedIn
+                </Label>
+                <Input
+                  id="linkedin"
+                  name="linkedin"
+                  value={formData.linkedin || ''}
+                  onChange={handleChange}
+                  placeholder="https://linkedin.com/in/username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="github" className="flex items-center gap-2">
+                  <Github className="w-4 h-4" />
+                  GitHub
+                </Label>
+                <Input
+                  id="github"
+                  name="github"
+                  value={formData.github || ''}
+                  onChange={handleChange}
+                  placeholder="https://github.com/username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="youtube" className="flex items-center gap-2">
+                  <Youtube className="w-4 h-4 text-red-600" />
+                  YouTube
+                </Label>
+                <Input
+                  id="youtube"
+                  name="youtube"
+                  value={formData.youtube || ''}
+                  onChange={handleChange}
+                  placeholder="https://youtube.com/@username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="instagram" className="flex items-center gap-2">
+                  <Instagram className="w-4 h-4 text-pink-600" />
+                  Instagram
+                </Label>
+                <Input
+                  id="instagram"
+                  name="instagram"
+                  value={formData.instagram || ''}
+                  onChange={handleChange}
+                  placeholder="https://instagram.com/username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="twitter" className="flex items-center gap-2">
+                  <Twitter className="w-4 h-4 text-blue-400" />
+                  Twitter/X
+                </Label>
+                <Input
+                  id="twitter"
+                  name="twitter"
+                  value={formData.twitter || ''}
+                  onChange={handleChange}
+                  placeholder="https://twitter.com/username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="scholar" className="flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-blue-700" />
+                  Google Scholar
+                </Label>
+                <Input
+                  id="scholar"
+                  name="scholar"
+                  value={formData.scholar || ''}
+                  onChange={handleChange}
+                  placeholder="https://scholar.google.com/citations?user=..."
+                />
+              </div>
+            </div>
           </div>
 
           <Button type="submit" className="w-full">
