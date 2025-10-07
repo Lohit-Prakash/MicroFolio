@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { usePortfolio } from "@/contexts/PortfolioDataContext";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, User, Linkedin, Github, Youtube, Instagram, Twitter, GraduationCap } from "lucide-react";
+import { Upload, User, Linkedin, Github, Youtube, Instagram, Twitter, GraduationCap, FileText } from "lucide-react";
 
 const EditProfile = () => {
   const { data, updatePersonalInfo } = usePortfolio();
@@ -228,6 +228,26 @@ const EditProfile = () => {
                   placeholder="https://scholar.google.com/citations?user=..."
                 />
               </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Resume Link
+            </h3>
+            <div className="space-y-2">
+              <Label htmlFor="resumeLink">Resume Download Link</Label>
+              <Input
+                id="resumeLink"
+                name="resumeLink"
+                value={formData.resumeLink || ''}
+                onChange={handleChange}
+                placeholder="https://drive.google.com/file/d/... or https://dropbox.com/..."
+              />
+              <p className="text-sm text-muted-foreground">
+                Add a direct link to your resume (Google Drive, Dropbox, or any hosting service)
+              </p>
             </div>
           </div>
 

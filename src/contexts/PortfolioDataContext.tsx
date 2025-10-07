@@ -47,6 +47,7 @@ export interface PersonalInfo {
   instagram?: string;
   twitter?: string;
   scholar?: string;
+  resumeLink?: string;
 }
 
 interface PortfolioData {
@@ -83,7 +84,8 @@ const defaultData: PortfolioData = {
     youtube: "https://youtube.com/@lohitprakash",
     instagram: "https://instagram.com/lohitprakash",
     twitter: "https://twitter.com/lohitprakash",
-    scholar: "https://scholar.google.com/citations?user=lohitprakash"
+    scholar: "https://scholar.google.com/citations?user=lohitprakash",
+    resumeLink: ""
   },
   projects: [
     {

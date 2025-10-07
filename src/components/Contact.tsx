@@ -1,8 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, ExternalLink } from "lucide-react";
+import { Mail, Phone, MapPin, ExternalLink, Download } from "lucide-react";
+import { usePortfolio } from "@/contexts/PortfolioDataContext";
 
 const Contact = () => {
+  const { data } = usePortfolio();
+  const { personalInfo } = data;
+  
   const contactInfo = [
     {
       icon: Mail,
@@ -113,16 +117,18 @@ const Contact = () => {
                     
                     <Button 
                       size="lg" 
-                      variant="outline"
-                      className="w-full border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+                      variant="secondary"
+                      className="w-full"
                       onClick={() => {
-                        // This will be functional once Supabase is connected
-                        console.log('Download resume clicked');
+                        if (personalInfo.resumeLink) {
+                          window.open(personalInfo.resumeLink, '_blank');
+                        } else {
+                          console.log('No resume link set');
+                        }
                       }}
+                      disabled={!personalInfo.resumeLink}
                     >
-                      <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
+                      <Download className="w-5 h-5 mr-2" />
                       Download Resume
                     </Button>
                   </div>
