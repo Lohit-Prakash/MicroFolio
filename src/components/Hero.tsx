@@ -171,9 +171,13 @@ const Hero = () => {
 
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-10 animate-pulse-glow">
-        <div className="w-8 h-12 border-2 border-accent/40 rounded-full flex justify-center backdrop-blur-sm">
-          <div className="w-1 h-4 bg-accent rounded-full mt-2 animate-float"></div>
+      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="flex flex-col items-center gap-1 animate-fade-in">
+          <span className="text-xs text-muted-foreground/60 font-medium tracking-wider mb-1">SCROLL</span>
+          <div className="relative">
+            <ChevronDown className="w-6 h-6 text-accent animate-bounce" />
+            <ChevronDown className="w-6 h-6 text-accent/40 absolute top-2 left-0 animate-bounce" style={{animationDelay: '0.1s'}} />
+          </div>
         </div>
       </div>
     </section>
