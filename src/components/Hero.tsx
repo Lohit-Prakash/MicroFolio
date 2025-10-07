@@ -44,8 +44,8 @@ const Hero = () => {
         <div className="max-w-5xl mx-auto">
           {/* Profile Picture */}
           <div className="mb-8 animate-fade-up">
-            <div className="w-40 h-40 mx-auto rounded-full bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 p-1 shadow-2xl shadow-primary/20 backdrop-blur-sm">
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-background/95 to-muted/50 flex items-center justify-center text-5xl font-bold text-primary shadow-inner border border-white/10">
+            <div className="w-40 h-40 mx-auto rounded-3xl bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 p-1 shadow-2xl shadow-primary/20 backdrop-blur-sm">
+              <div className="w-full h-full rounded-3xl bg-gradient-to-br from-background/95 to-muted/50 flex items-center justify-center text-5xl font-bold text-primary shadow-inner border border-white/10">
                 {personalInfo.name.split(' ').map(n => n[0]).join('')}
               </div>
             </div>
