@@ -4,8 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Calendar, Eye } from "lucide-react";
 import ExperienceModal from "@/components/modals/ExperienceModal";
+import { usePortfolio } from "@/contexts/PortfolioDataContext";
 
 const Experience = () => {
+  const { data } = usePortfolio();
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -13,56 +15,6 @@ const Experience = () => {
     setSelectedExperience(experience);
     setIsModalOpen(true);
   };
-
-  const experiences = [
-    {
-      role: "Research Intern",
-      company: "Indian Institute of Technology Madras",
-      location: "Chennai, Tamil Nadu",
-      period: "May 2024 - July 2024",
-      type: "Research",
-      description: "Led cutting-edge research in autonomous drone systems, focusing on swarm intelligence and coordination algorithms for multi-agent systems.",
-      achievements: [
-        "Developed an algorithm for drone swarming, addressing challenges in autonomous coordination",
-        "Built a functional drone prototype using Raspberry Pi 4 and Pixhawk flight controller",
-        "Used Mission Planner and QGroundControl for mission planning and configuration",
-        "Tested algorithms in both simulations and real-world trials",
-        "Acquired expertise in drone technology and advanced project management"
-      ],
-      skills: ["Python", "ROS", "Raspberry Pi", "Pixhawk", "Mission Planner", "QGroundControl", "Drone Technology", "Swarm Intelligence"]
-    },
-    {
-      role: "Project Intern",
-      company: "Indian Space Research Organization (ISRO)",
-      location: "Bangalore, Karnataka", 
-      period: "Dec 2023 - Jan 2024",
-      type: "Space Technology",
-      description: "Contributed to satellite communication systems development, specializing in antenna design and electromagnetic simulation for India's navigation satellites.",
-      achievements: [
-        "Designed and simulated dual-band patch antenna for GPS and NavIC on Indian satellites",
-        "Worked with frequencies of 1.17 GHz and 1.57 GHz for satellite communication",
-        "Utilized Ansys HFSS for electromagnetic simulations and antenna modeling",
-        "Gained exposure to satellite link budgeting and power converter systems",
-        "Learned ISRO's work culture and precision requirements for space communication"
-      ],
-      skills: ["Ansys HFSS", "Antenna Design", "Electromagnetic Simulation", "Satellite Communication", "RF Engineering", "MATLAB"]
-    },
-    {
-      role: "Intern",
-      company: "Titan Watches",
-      location: "Hosur, Tamil Nadu",
-      period: "May 2023",
-      type: "Manufacturing",
-      description: "Gained hands-on experience in precision manufacturing and product development in the luxury watch industry, focusing on R&D processes.",
-      achievements: [
-        "Explored watch assembly and mechanics in the R&D department",
-        "Gained insights into design and production workflows for precision instruments",
-        "Learned end-to-end product development processes",
-        "Understood precision engineering principles in consumer electronics"
-      ],
-      skills: ["Precision Manufacturing", "Product Development", "R&D Processes", "Quality Control", "Mechanical Engineering"]
-    }
-  ];
 
   return (
     <section className="py-20 bg-background">
@@ -78,7 +30,7 @@ const Experience = () => {
           </div>
 
           <div className="space-y-8">
-            {experiences.map((exp, index) => (
+            {data.experience.map((exp, index) => (
               <Card 
                 key={index} 
                 className="card-gradient shadow-soft hover:shadow-medium transition-spring group cursor-pointer experience-card-hover"
@@ -96,7 +48,7 @@ const Experience = () => {
                       <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between mb-6">
                         <div className="mb-4 xl:mb-0">
                           <h3 className="text-2xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                            {exp.role}
+                            {exp.title}
                           </h3>
                           <h4 className="text-lg font-medium text-primary mb-3">
                             {exp.company}
@@ -112,11 +64,9 @@ const Experience = () => {
                             </div>
                           </div>
                         </div>
-                        
-                        <Badge variant="secondary" className="w-fit h-fit">
-                          {exp.type}
-                        </Badge>
                       </div>
+                      
+                      <p className="text-muted-foreground leading-relaxed mb-4">{exp.description}</p>
                       
                       <div className="space-y-3 mb-4">
                         {exp.achievements.slice(0, 2).map((achievement, idx) => (

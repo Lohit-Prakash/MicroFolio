@@ -1,26 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Calendar } from "lucide-react";
+import { GraduationCap, Calendar, MapPin } from "lucide-react";
+import { usePortfolio } from "@/contexts/PortfolioDataContext";
 
 const Education = () => {
-  const education = [
-    {
-      degree: "Aerospace Engineering",
-      institution: "Indian Institute of Technology Madras",
-      period: "2024 - 2025",
-      status: "Exchange Student",
-      description: "Advanced coursework in aerospace systems, control theory, and space technology",
-      highlights: ["Ongoing", "Research Focus"]
-    },
-    {
-      degree: "B.Tech in Electronics and Communication Engineering", 
-      institution: "National Institute of Technology Puducherry",
-      period: "2021 - 2024",
-      status: "CGPA: 8.60/10.00",
-      description: "Comprehensive study of electronics, communication systems, and embedded technologies",
-      highlights: ["Till 6th Semester", "Distinguished Performance"]
-    }
-  ];
+  const { data } = usePortfolio();
 
   return (
     <section className="py-20 bg-muted/30">
@@ -36,8 +20,8 @@ const Education = () => {
           </div>
 
           <div className="space-y-8">
-            {education.map((edu, index) => (
-              <Card key={index} className="card-gradient shadow-soft hover:shadow-medium transition-spring group">
+            {data.education.map((edu) => (
+              <Card key={edu.id} className="card-gradient shadow-soft hover:shadow-medium transition-spring group">
                 <CardContent className="p-8">
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex-shrink-0">
@@ -63,22 +47,23 @@ const Education = () => {
                             <span className="font-medium">{edu.period}</span>
                           </div>
                           <Badge variant="secondary" className="w-fit">
-                            {edu.status}
+                            CGPA: {edu.cgpa}
                           </Badge>
                         </div>
                       </div>
                       
-                      <p className="text-muted-foreground mb-4 leading-relaxed">
-                        {edu.description}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {edu.highlights.map((highlight, idx) => (
-                          <Badge key={idx} variant="outline" className="border-primary/20">
-                            {highlight}
-                          </Badge>
-                        ))}
+                      <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                        <MapPin className="w-4 h-4" />
+                        <span>{edu.location}</span>
                       </div>
+                      
+                      {edu.specialization && (
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline" className="border-primary/20">
+                            {edu.specialization}
+                          </Badge>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

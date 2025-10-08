@@ -12,7 +12,8 @@ import EditExperience from "./admin/EditExperience";
 import EditEducation from "./admin/EditEducation";
 import EditContact from "./admin/EditContact";
 import EditAnalytics from "./admin/EditAnalytics";
-import { User, Briefcase, GraduationCap, FolderOpen, Mail, BarChart3, Settings, Menu, Home, LogOut } from "lucide-react";
+import EditAbout from "./admin/EditAbout";
+import { User, Briefcase, GraduationCap, FolderOpen, Mail, BarChart3, Settings, Menu, Home, LogOut, Info } from "lucide-react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const AdminDashboard = () => {
 
   const navigationItems = [
     { id: "profile", label: "Profile", icon: User },
+    { id: "about", label: "About Section", icon: Info },
     { id: "projects", label: "Projects", icon: FolderOpen },
     { id: "experience", label: "Experience", icon: Briefcase },
     { id: "education", label: "Education", icon: GraduationCap },
@@ -108,6 +110,8 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case "profile":
         return <EditProfile />;
+      case "about":
+        return <EditAbout />;
       case "projects":
         return <EditProjects />;
       case "experience":

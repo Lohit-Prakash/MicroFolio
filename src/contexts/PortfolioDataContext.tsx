@@ -51,11 +51,20 @@ export interface PersonalInfo {
   resumeLink?: string;
 }
 
+export interface AboutSection {
+  vision: string;
+  educationDesc: string;
+  innovation: string;
+  researchAreas: string[];
+  keySkills: string[];
+}
+
 interface PortfolioData {
   personalInfo: PersonalInfo;
   projects: Project[];
   experience: Experience[];
   education: Education[];
+  aboutSection: AboutSection;
 }
 
 interface PortfolioContextType {
@@ -64,6 +73,7 @@ interface PortfolioContextType {
   updateProjects: (projects: Project[]) => void;
   updateExperience: (experience: Experience[]) => void;
   updateEducation: (education: Education[]) => void;
+  updateAboutSection: (aboutSection: AboutSection) => void;
   addProject: (project: Omit<Project, 'id'>) => void;
   removeProject: (id: string) => void;
   addExperience: (experience: Omit<Experience, 'id'>) => void;
@@ -170,7 +180,24 @@ const defaultData: PortfolioData = {
       location: "Chennai, India",
       specialization: "Control Systems & Space Technology"
     }
-  ]
+  ],
+  aboutSection: {
+    vision: "To pioneer innovative solutions in aerospace and electronics that push the boundaries of what's possible in space exploration and autonomous systems.",
+    educationDesc: "Currently pursuing Aerospace Engineering at IIT Madras as an exchange student, building on my strong foundation in Electronics and Communication.",
+    innovation: "Specializing in drone technology, control systems, and advanced power electronics with practical experience at ISRO and leading research institutions.",
+    researchAreas: [
+      "Drone Swarming Algorithms",
+      "Sliding Mode Control Systems",
+      "Power Electronics & Converters",
+      "Satellite Communication Systems"
+    ],
+    keySkills: [
+      "Embedded Systems (Raspberry Pi, Pixhawk)",
+      "MATLAB/Simulink & Ansys HFSS",
+      "Control Theory & Algorithm Development",
+      "Research & Technical Documentation"
+    ]
+  }
 };
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
@@ -199,6 +226,10 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
   const updateEducation = (education: Education[]) => {
     setData(prev => ({ ...prev, education }));
+  };
+
+  const updateAboutSection = (aboutSection: AboutSection) => {
+    setData(prev => ({ ...prev, aboutSection }));
   };
 
   const addProject = (project: Omit<Project, 'id'>) => {
@@ -235,6 +266,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       updateProjects,
       updateExperience,
       updateEducation,
+      updateAboutSection,
       addProject,
       removeProject,
       addExperience,
