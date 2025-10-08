@@ -22,7 +22,9 @@ const EditExperience = () => {
     period: "",
     location: "",
     description: "",
-    achievements: [] as string[]
+    achievements: [] as string[],
+    images: [] as string[],
+    pdfs: [] as string[]
   });
 
   const handleAddExperience = (e: React.FormEvent) => {
@@ -34,7 +36,9 @@ const EditExperience = () => {
       period: "",
       location: "",
       description: "",
-      achievements: []
+      achievements: [],
+      images: [],
+      pdfs: []
     });
     setShowAddForm(false);
     toast({
@@ -93,6 +97,66 @@ const EditExperience = () => {
       setNewExperience({
         ...newExperience,
         achievements: newExperience.achievements.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const addImage = (isEditing: boolean, url: string) => {
+    if (!url.trim()) return;
+    
+    if (isEditing && editingExperience) {
+      setEditingExperience({
+        ...editingExperience,
+        images: [...(editingExperience.images || []), url.trim()]
+      });
+    } else {
+      setNewExperience({
+        ...newExperience,
+        images: [...newExperience.images, url.trim()]
+      });
+    }
+  };
+
+  const removeImage = (index: number, isEditing: boolean) => {
+    if (isEditing && editingExperience) {
+      setEditingExperience({
+        ...editingExperience,
+        images: (editingExperience.images || []).filter((_, i) => i !== index)
+      });
+    } else {
+      setNewExperience({
+        ...newExperience,
+        images: newExperience.images.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const addPdf = (isEditing: boolean, url: string) => {
+    if (!url.trim()) return;
+    
+    if (isEditing && editingExperience) {
+      setEditingExperience({
+        ...editingExperience,
+        pdfs: [...(editingExperience.pdfs || []), url.trim()]
+      });
+    } else {
+      setNewExperience({
+        ...newExperience,
+        pdfs: [...newExperience.pdfs, url.trim()]
+      });
+    }
+  };
+
+  const removePdf = (index: number, isEditing: boolean) => {
+    if (isEditing && editingExperience) {
+      setEditingExperience({
+        ...editingExperience,
+        pdfs: (editingExperience.pdfs || []).filter((_, i) => i !== index)
+      });
+    } else {
+      setNewExperience({
+        ...newExperience,
+        pdfs: newExperience.pdfs.filter((_, i) => i !== index)
       });
     }
   };
@@ -219,6 +283,80 @@ const EditExperience = () => {
                 </div>
               </div>
 
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-foreground/80">Images (URLs)</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    placeholder="Add image URL"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addImage(false, e.currentTarget.value);
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                  <Button 
+                    type="button" 
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      addImage(false, input.value);
+                      input.value = '';
+                    }} 
+                    variant="outline" 
+                    className="hover-scale transition-spring"
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div className="space-y-2 mt-3">
+                  {newExperience.images.map((image, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
+                      <span className="text-sm flex-1 pr-2 truncate">{image}</span>
+                      <X className="w-4 h-4 cursor-pointer opacity-60 group-hover:opacity-100 transition-opacity hover-scale" onClick={() => removeImage(index, false)} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-foreground/80">PDFs (URLs)</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    placeholder="Add PDF URL"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addPdf(false, e.currentTarget.value);
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                  <Button 
+                    type="button" 
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      addPdf(false, input.value);
+                      input.value = '';
+                    }} 
+                    variant="outline" 
+                    className="hover-scale transition-spring"
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div className="space-y-2 mt-3">
+                  {newExperience.pdfs.map((pdf, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
+                      <span className="text-sm flex-1 pr-2 truncate">{pdf}</span>
+                      <X className="w-4 h-4 cursor-pointer opacity-60 group-hover:opacity-100 transition-opacity hover-scale" onClick={() => removePdf(index, false)} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Button type="submit" className="hover-lift transition-spring shadow-medium hover:shadow-strong">
                   <Plus className="w-4 h-4 mr-2" />
@@ -332,6 +470,30 @@ const EditExperience = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="edit-period" className="text-sm font-semibold text-foreground/80">Time Period</Label>
+                  <Input
+                    id="edit-period"
+                    value={editingExperience.period}
+                    onChange={(e) => setEditingExperience({...editingExperience, period: e.target.value})}
+                    placeholder="e.g., Jan 2024 - Present"
+                    required
+                    className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="edit-location" className="text-sm font-semibold text-foreground/80">Location</Label>
+                  <Input
+                    id="edit-location"
+                    value={editingExperience.location}
+                    onChange={(e) => setEditingExperience({...editingExperience, location: e.target.value})}
+                    required
+                    className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <Label htmlFor="edit-description" className="text-sm font-semibold text-foreground/80">Description</Label>
                 <Textarea
@@ -363,6 +525,80 @@ const EditExperience = () => {
                     <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
                       <span className="text-sm flex-1 pr-2">{achievement}</span>
                       <X className="w-4 h-4 cursor-pointer opacity-60 group-hover:opacity-100 transition-opacity hover-scale" onClick={() => removeAchievement(index, true)} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-foreground/80">Images (URLs)</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    placeholder="Add image URL"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addImage(true, e.currentTarget.value);
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                  <Button 
+                    type="button" 
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      addImage(true, input.value);
+                      input.value = '';
+                    }} 
+                    variant="outline" 
+                    className="hover-scale transition-spring"
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div className="space-y-2 mt-3">
+                  {(editingExperience.images || []).map((image, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
+                      <span className="text-sm flex-1 pr-2 truncate">{image}</span>
+                      <X className="w-4 h-4 cursor-pointer opacity-60 group-hover:opacity-100 transition-opacity hover-scale" onClick={() => removeImage(index, true)} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-foreground/80">PDFs (URLs)</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input
+                    placeholder="Add PDF URL"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addPdf(true, e.currentTarget.value);
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                  <Button 
+                    type="button" 
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      addPdf(true, input.value);
+                      input.value = '';
+                    }} 
+                    variant="outline" 
+                    className="hover-scale transition-spring"
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div className="space-y-2 mt-3">
+                  {(editingExperience.pdfs || []).map((pdf, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
+                      <span className="text-sm flex-1 pr-2 truncate">{pdf}</span>
+                      <X className="w-4 h-4 cursor-pointer opacity-60 group-hover:opacity-100 transition-opacity hover-scale" onClick={() => removePdf(index, true)} />
                     </div>
                   ))}
                 </div>

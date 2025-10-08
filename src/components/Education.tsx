@@ -1,10 +1,21 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Calendar, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GraduationCap, Calendar, MapPin, Eye } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioDataContext";
+import EducationModal from "@/components/modals/EducationModal";
+import { Education as EducationType } from "@/contexts/PortfolioDataContext";
 
 const Education = () => {
   const { data } = usePortfolio();
+  const [selectedEducation, setSelectedEducation] = useState<EducationType | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleEducationClick = (edu: EducationType) => {
+    setSelectedEducation(edu);
+    setIsModalOpen(true);
+  };
 
   return (
     <section className="py-20 bg-muted/30">
@@ -21,7 +32,11 @@ const Education = () => {
 
           <div className="space-y-8">
             {data.education.map((edu) => (
-              <Card key={edu.id} className="card-gradient shadow-soft hover:shadow-medium transition-spring group">
+              <Card 
+                key={edu.id} 
+                className="card-gradient shadow-soft hover:shadow-medium transition-spring group cursor-pointer"
+                onClick={() => handleEducationClick(edu)}
+              >
                 <CardContent className="p-8">
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex-shrink-0">
@@ -33,7 +48,7 @@ const Education = () => {
                     <div className="flex-1">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
                         <div>
-                          <h3 className="text-2xl font-semibold text-foreground mb-2">
+                          <h3 className="text-2xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                             {edu.degree}
                           </h3>
                           <h4 className="text-lg font-medium text-primary mb-2">
@@ -57,13 +72,28 @@ const Education = () => {
                         <span>{edu.location}</span>
                       </div>
                       
-                      {edu.specialization && (
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline" className="border-primary/20">
-                            {edu.specialization}
-                          </Badge>
-                        </div>
-                      )}
+                      <div className="flex items-center justify-between gap-4">
+                        {edu.specialization && (
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="outline" className="border-primary/20">
+                              {edu.specialization}
+                            </Badge>
+                          </div>
+                        )}
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors ml-auto"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEducationClick(edu);
+                          }}
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -72,6 +102,15 @@ const Education = () => {
           </div>
         </div>
       </div>
+
+      <EducationModal 
+        education={selectedEducation}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedEducation(null);
+        }}
+      />
     </section>
   );
 };

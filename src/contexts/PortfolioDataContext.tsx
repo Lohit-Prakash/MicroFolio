@@ -23,6 +23,8 @@ export interface Experience {
   location: string;
   description: string;
   achievements: string[];
+  images?: string[];
+  pdfs?: string[];
 }
 
 export interface Education {
@@ -33,6 +35,9 @@ export interface Education {
   cgpa: string;
   location: string;
   specialization?: string;
+  description?: string;
+  achievements?: string[];
+  relevantCourses?: string[];
 }
 
 export interface PersonalInfo {
