@@ -205,7 +205,16 @@ const PortfolioContext = createContext<PortfolioContextType | undefined>(undefin
 export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<PortfolioData>(() => {
     const saved = localStorage.getItem('portfolioData');
-    return saved ? JSON.parse(saved) : defaultData;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Merge with defaults to ensure new fields exist
+      return {
+        ...defaultData,
+        ...parsed,
+        aboutSection: parsed.aboutSection || defaultData.aboutSection
+      };
+    }
+    return defaultData;
   });
 
   useEffect(() => {
