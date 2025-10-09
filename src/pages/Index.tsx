@@ -9,6 +9,7 @@ import Projects from "@/components/Projects";
 import Contact from "@/components/Contact";
 import Login from "@/components/Login";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import SectionDivider from "@/components/SectionDivider";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("about");
@@ -120,24 +121,32 @@ const Index = () => {
         <About />
       </section>
       
+      <SectionDivider />
+      
       <section id="education" className="scroll-mt-20">
         <Education />
       </section>
+      
+      <SectionDivider />
       
       <section id="experience" className="scroll-mt-20">
         <Experience />
       </section>
       
+      <SectionDivider />
+      
       <section id="projects" className="scroll-mt-20">
         <Projects />
       </section>
+      
+      <SectionDivider />
       
       <section id="contact" className="scroll-mt-20">
         <Contact />
       </section>
       
       {/* Admin Login Button at Bottom */}
-      <div className="py-16 bg-muted/20">
+      <div className="py-12 bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             <div className="card-glass p-8 rounded-3xl shadow-2xl backdrop-blur-md border border-white/10">
