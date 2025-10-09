@@ -5,38 +5,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, Plus, Edit2, Trash2, X } from "lucide-react";
-
-interface Education {
-  id: string;
-  degree: string;
-  institution: string;
-  location: string;
-  period: string;
-  description: string;
-  achievements: string[];
-  gpa?: string;
-  relevant_courses?: string[];
-}
+import { usePortfolio, Education } from "@/contexts/PortfolioDataContext";
+import { GraduationCap, Plus, Edit2, Trash2, X, Image, FileText } from "lucide-react";
 
 const EditEducation = () => {
   const { toast } = useToast();
+  const { data, updateEducation } = usePortfolio();
   
-  // Mock data - replace with actual data source
-  const [educations, setEducations] = useState<Education[]>([
-    {
-      id: "1",
-      degree: "Master of Science in Computer Science",
-      institution: "Stanford University", 
-      location: "Stanford, CA",
-      period: "2020 - 2022",
-      description: "Specialized in Machine Learning and Artificial Intelligence with focus on deep learning applications.",
-      achievements: ["Graduated Magna Cum Laude", "Research Assistant in AI Lab", "Published 2 papers"],
-      gpa: "3.9/4.0",
-      relevant_courses: ["Deep Learning", "Computer Vision", "Natural Language Processing"]
-    }
-  ]);
-
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingEducation, setEditingEducation] = useState<Education | null>(null);
   
@@ -45,14 +20,19 @@ const EditEducation = () => {
     institution: "",
     location: "",
     period: "",
+    cgpa: "",
+    specialization: "",
     description: "",
-    gpa: "",
     achievements: [] as string[],
-    relevant_courses: [] as string[]
+    relevantCourses: [] as string[],
+    images: [] as string[],
+    pdfs: [] as string[]
   });
 
   const [newAchievement, setNewAchievement] = useState("");
   const [newCourse, setNewCourse] = useState("");
+  const [newImage, setNewImage] = useState("");
+  const [newPdf, setNewPdf] = useState("");
 
   const handleAddEducation = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,16 +42,19 @@ const EditEducation = () => {
       ...newEducation
     };
     
-    setEducations([...educations, education]);
+    updateEducation([...data.education, education]);
     setNewEducation({
       degree: "",
       institution: "",
       location: "",
       period: "",
+      cgpa: "",
+      specialization: "",
       description: "",
-      gpa: "",
       achievements: [],
-      relevant_courses: []
+      relevantCourses: [],
+      images: [],
+      pdfs: []
     });
     setShowAddForm(false);
     
@@ -85,7 +68,7 @@ const EditEducation = () => {
     e.preventDefault();
     if (!editingEducation) return;
 
-    setEducations(educations.map(edu => 
+    updateEducation(data.education.map(edu => 
       edu.id === editingEducation.id ? editingEducation : edu
     ));
     setEditingEducation(null);
@@ -97,7 +80,7 @@ const EditEducation = () => {
   };
 
   const handleRemoveEducation = (id: string) => {
-    setEducations(educations.filter(edu => edu.id !== id));
+    updateEducation(data.education.filter(edu => edu.id !== id));
     toast({
       title: "Education Removed",
       description: "Education entry has been removed successfully.",
@@ -109,7 +92,7 @@ const EditEducation = () => {
       if (isEditing && editingEducation) {
         setEditingEducation({
           ...editingEducation,
-          achievements: [...editingEducation.achievements, newAchievement]
+          achievements: [...(editingEducation.achievements || []), newAchievement]
         });
       } else {
         setNewEducation({
@@ -125,7 +108,7 @@ const EditEducation = () => {
     if (isEditing && editingEducation) {
       setEditingEducation({
         ...editingEducation,
-        achievements: editingEducation.achievements.filter((_, i) => i !== index)
+        achievements: (editingEducation.achievements || []).filter((_, i) => i !== index)
       });
     } else {
       setNewEducation({
@@ -140,12 +123,12 @@ const EditEducation = () => {
       if (isEditing && editingEducation) {
         setEditingEducation({
           ...editingEducation,
-          relevant_courses: [...(editingEducation.relevant_courses || []), newCourse]
+          relevantCourses: [...(editingEducation.relevantCourses || []), newCourse]
         });
       } else {
         setNewEducation({
           ...newEducation,
-          relevant_courses: [...newEducation.relevant_courses, newCourse]
+          relevantCourses: [...newEducation.relevantCourses, newCourse]
         });
       }
       setNewCourse("");
@@ -156,12 +139,74 @@ const EditEducation = () => {
     if (isEditing && editingEducation) {
       setEditingEducation({
         ...editingEducation,
-        relevant_courses: (editingEducation.relevant_courses || []).filter((_, i) => i !== index)
+        relevantCourses: (editingEducation.relevantCourses || []).filter((_, i) => i !== index)
       });
     } else {
       setNewEducation({
         ...newEducation,
-        relevant_courses: newEducation.relevant_courses.filter((_, i) => i !== index)
+        relevantCourses: newEducation.relevantCourses.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const addImage = (isEditing: boolean = false) => {
+    if (newImage.trim()) {
+      if (isEditing && editingEducation) {
+        setEditingEducation({
+          ...editingEducation,
+          images: [...(editingEducation.images || []), newImage]
+        });
+      } else {
+        setNewEducation({
+          ...newEducation,
+          images: [...newEducation.images, newImage]
+        });
+      }
+      setNewImage("");
+    }
+  };
+
+  const removeImage = (index: number, isEditing: boolean = false) => {
+    if (isEditing && editingEducation) {
+      setEditingEducation({
+        ...editingEducation,
+        images: (editingEducation.images || []).filter((_, i) => i !== index)
+      });
+    } else {
+      setNewEducation({
+        ...newEducation,
+        images: newEducation.images.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const addPdf = (isEditing: boolean = false) => {
+    if (newPdf.trim()) {
+      if (isEditing && editingEducation) {
+        setEditingEducation({
+          ...editingEducation,
+          pdfs: [...(editingEducation.pdfs || []), newPdf]
+        });
+      } else {
+        setNewEducation({
+          ...newEducation,
+          pdfs: [...newEducation.pdfs, newPdf]
+        });
+      }
+      setNewPdf("");
+    }
+  };
+
+  const removePdf = (index: number, isEditing: boolean = false) => {
+    if (isEditing && editingEducation) {
+      setEditingEducation({
+        ...editingEducation,
+        pdfs: (editingEducation.pdfs || []).filter((_, i) => i !== index)
+      });
+    } else {
+      setNewEducation({
+        ...newEducation,
+        pdfs: newEducation.pdfs.filter((_, i) => i !== index)
       });
     }
   };
@@ -214,9 +259,15 @@ const EditEducation = () => {
                   required
                 />
                 <Input
-                  placeholder="GPA (optional)"
-                  value={newEducation.gpa}
-                  onChange={(e) => setNewEducation({...newEducation, gpa: e.target.value})}
+                  placeholder="CGPA"
+                  value={newEducation.cgpa}
+                  onChange={(e) => setNewEducation({...newEducation, cgpa: e.target.value})}
+                  required
+                />
+                <Input
+                  placeholder="Specialization (optional)"
+                  value={newEducation.specialization}
+                  onChange={(e) => setNewEducation({...newEducation, specialization: e.target.value})}
                 />
               </div>
               
@@ -224,7 +275,6 @@ const EditEducation = () => {
                 placeholder="Description"
                 value={newEducation.description}
                 onChange={(e) => setNewEducation({...newEducation, description: e.target.value})}
-                required
               />
 
               {/* Achievements */}
@@ -267,12 +317,70 @@ const EditEducation = () => {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {newEducation.relevant_courses.map((course, index) => (
+                  {newEducation.relevantCourses.map((course, index) => (
                     <Badge key={index} variant="outline" className="gap-1">
                       {course}
                       <X
                         className="w-3 h-3 cursor-pointer"
                         onClick={() => removeCourse(index, false)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Images */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  Images
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add image URL"
+                    value={newImage}
+                    onChange={(e) => setNewImage(e.target.value)}
+                  />
+                  <Button type="button" onClick={() => addImage(false)}>
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {newEducation.images.map((image, index) => (
+                    <Badge key={index} variant="secondary" className="gap-1">
+                      Image {index + 1}
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => removeImage(index, false)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* PDFs */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  PDFs
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add PDF URL"
+                    value={newPdf}
+                    onChange={(e) => setNewPdf(e.target.value)}
+                  />
+                  <Button type="button" onClick={() => addPdf(false)}>
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {newEducation.pdfs.map((pdf, index) => (
+                    <Badge key={index} variant="secondary" className="gap-1">
+                      PDF {index + 1}
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => removePdf(index, false)}
                       />
                     </Badge>
                   ))}
@@ -292,7 +400,7 @@ const EditEducation = () => {
 
       {/* Education List */}
       <div className="space-y-4">
-        {educations.map((education) => (
+        {data.education.map((education) => (
           <Card key={education.id}>
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
@@ -300,8 +408,9 @@ const EditEducation = () => {
                   <h3 className="text-xl font-semibold">{education.degree}</h3>
                   <p className="text-primary font-medium">{education.institution}</p>
                   <p className="text-muted-foreground">{education.location} • {education.period}</p>
-                  {education.gpa && (
-                    <p className="text-sm text-muted-foreground mt-1">GPA: {education.gpa}</p>
+                  <p className="text-sm text-muted-foreground mt-1">CGPA: {education.cgpa}</p>
+                  {education.specialization && (
+                    <p className="text-sm text-muted-foreground">Specialization: {education.specialization}</p>
                   )}
                 </div>
                 <div className="flex gap-2">
@@ -322,9 +431,11 @@ const EditEducation = () => {
                 </div>
               </div>
               
-              <p className="text-muted-foreground mb-4">{education.description}</p>
+              {education.description && (
+                <p className="text-muted-foreground mb-4">{education.description}</p>
+              )}
               
-              {education.achievements.length > 0 && (
+              {education.achievements && education.achievements.length > 0 && (
                 <div className="mb-4">
                   <h4 className="font-medium mb-2">Achievements</h4>
                   <div className="flex flex-wrap gap-2">
@@ -337,16 +448,34 @@ const EditEducation = () => {
                 </div>
               )}
               
-              {education.relevant_courses && education.relevant_courses.length > 0 && (
-                <div>
+              {education.relevantCourses && education.relevantCourses.length > 0 && (
+                <div className="mb-4">
                   <h4 className="font-medium mb-2">Relevant Courses</h4>
                   <div className="flex flex-wrap gap-2">
-                    {education.relevant_courses.map((course, index) => (
+                    {education.relevantCourses.map((course, index) => (
                       <Badge key={index} variant="outline">
                         {course}
                       </Badge>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {education.images && education.images.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    Images ({education.images.length})
+                  </h4>
+                </div>
+              )}
+
+              {education.pdfs && education.pdfs.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    PDFs ({education.pdfs.length})
+                  </h4>
                 </div>
               )}
             </CardContent>
@@ -388,17 +517,22 @@ const EditEducation = () => {
                   required
                 />
                 <Input
-                  placeholder="GPA (optional)"
-                  value={editingEducation.gpa || ""}
-                  onChange={(e) => setEditingEducation({...editingEducation, gpa: e.target.value})}
+                  placeholder="CGPA"
+                  value={editingEducation.cgpa}
+                  onChange={(e) => setEditingEducation({...editingEducation, cgpa: e.target.value})}
+                  required
+                />
+                <Input
+                  placeholder="Specialization (optional)"
+                  value={editingEducation.specialization || ""}
+                  onChange={(e) => setEditingEducation({...editingEducation, specialization: e.target.value})}
                 />
               </div>
               
               <Textarea
                 placeholder="Description"
-                value={editingEducation.description}
+                value={editingEducation.description || ""}
                 onChange={(e) => setEditingEducation({...editingEducation, description: e.target.value})}
-                required
               />
 
               {/* Edit Achievements */}
@@ -415,7 +549,7 @@ const EditEducation = () => {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {editingEducation.achievements.map((achievement, index) => (
+                  {(editingEducation.achievements || []).map((achievement, index) => (
                     <Badge key={index} variant="secondary" className="gap-1">
                       {achievement}
                       <X
@@ -441,12 +575,70 @@ const EditEducation = () => {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {(editingEducation.relevant_courses || []).map((course, index) => (
+                  {(editingEducation.relevantCourses || []).map((course, index) => (
                     <Badge key={index} variant="outline" className="gap-1">
                       {course}
                       <X
                         className="w-3 h-3 cursor-pointer"
                         onClick={() => removeCourse(index, true)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Edit Images */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  Images
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add image URL"
+                    value={newImage}
+                    onChange={(e) => setNewImage(e.target.value)}
+                  />
+                  <Button type="button" onClick={() => addImage(true)}>
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(editingEducation.images || []).map((image, index) => (
+                    <Badge key={index} variant="secondary" className="gap-1">
+                      Image {index + 1}
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => removeImage(index, true)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Edit PDFs */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  PDFs
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add PDF URL"
+                    value={newPdf}
+                    onChange={(e) => setNewPdf(e.target.value)}
+                  />
+                  <Button type="button" onClick={() => addPdf(true)}>
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(editingEducation.pdfs || []).map((pdf, index) => (
+                    <Badge key={index} variant="secondary" className="gap-1">
+                      PDF {index + 1}
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => removePdf(index, true)}
                       />
                     </Badge>
                   ))}

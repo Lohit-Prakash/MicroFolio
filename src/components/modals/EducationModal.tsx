@@ -1,8 +1,16 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, MapPin, Calendar, GraduationCap, BookOpen } from "lucide-react";
+import { X, MapPin, Calendar, GraduationCap, BookOpen, ChevronLeft, ChevronRight, FileText, ExternalLink } from "lucide-react";
 import { Education } from "@/contexts/PortfolioDataContext";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface EducationModalProps {
   education: Education | null;
@@ -11,7 +19,12 @@ interface EducationModalProps {
 }
 
 const EducationModal = ({ education, isOpen, onClose }: EducationModalProps) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   if (!education) return null;
+
+  const hasImages = education.images && education.images.length > 0;
+  const hasPdfs = education.pdfs && education.pdfs.length > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -54,6 +67,62 @@ const EducationModal = ({ education, isOpen, onClose }: EducationModalProps) => 
                 <Badge variant="secondary">CGPA: {education.cgpa}</Badge>
               </div>
             </div>
+
+            {/* Image Carousel */}
+            {hasImages && (
+              <div>
+                <h3 className="font-semibold text-foreground mb-3">Images</h3>
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {education.images!.map((image, index) => (
+                      <CarouselItem key={index}>
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
+                          <img
+                            src={image}
+                            alt={`${education.degree} - Image ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {education.images!.length > 1 && (
+                    <>
+                      <CarouselPrevious className="left-2" />
+                      <CarouselNext className="right-2" />
+                    </>
+                  )}
+                </Carousel>
+                <p className="text-sm text-muted-foreground text-center mt-2">
+                  {currentImageIndex + 1} / {education.images!.length}
+                </p>
+              </div>
+            )}
+
+            {/* PDFs */}
+            {hasPdfs && (
+              <div>
+                <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Documents
+                </h3>
+                <div className="space-y-2">
+                  {education.pdfs!.map((pdf, index) => (
+                    <a
+                      key={index}
+                      href={pdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors group"
+                    >
+                      <FileText className="w-5 h-5 text-primary" />
+                      <span className="flex-1 text-sm font-medium">Document {index + 1}</span>
+                      <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Specialization */}
             {education.specialization && (

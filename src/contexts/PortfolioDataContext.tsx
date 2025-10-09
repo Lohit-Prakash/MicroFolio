@@ -38,6 +38,8 @@ export interface Education {
   description?: string;
   achievements?: string[];
   relevantCourses?: string[];
+  images?: string[];
+  pdfs?: string[];
 }
 
 export interface PersonalInfo {
