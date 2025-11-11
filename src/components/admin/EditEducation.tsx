@@ -9,6 +9,8 @@ import { usePortfolio, Education } from "@/contexts/PortfolioDataContext";
 import FileOrLinkInput from "./FileOrLinkInput";
 import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
 import { GraduationCap, Plus, Edit2, Trash2, X, Image, FileText } from "lucide-react";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const EditEducation = () => {
   const { toast } = useToast();
@@ -40,6 +42,8 @@ const EditEducation = () => {
     e.preventDefault();
     
     try {
+      console.log("Adding new education:", newEducation);
+      
       // Upload any data URLs to Firebase Storage
       const images = await normalizeMediaUrlsToGCS("education/images", newEducation.images);
       const pdfs = await normalizeMediaUrlsToGCS("education/pdfs", newEducation.pdfs);
@@ -51,7 +55,14 @@ const EditEducation = () => {
         pdfs
       };
       
-      updateEducation([...data.education, education]);
+      const updatedEducations = [...data.education, education];
+      console.log("Updating Firestore with educations:", updatedEducations);
+      
+      const docRef = doc(db, "portfolios", "default");
+      await setDoc(docRef, { education: updatedEducations }, { merge: true });
+      
+      console.log("Firestore update successful");
+      
       setNewEducation({
         degree: "",
         institution: "",
@@ -72,6 +83,7 @@ const EditEducation = () => {
         description: "Education entry has been added successfully.",
       });
     } catch (error) {
+      console.error("Error adding education:", error);
       toast({
         title: "Upload Error",
         description: "Failed to upload files. Please try again.",
@@ -95,9 +107,16 @@ const EditEducation = () => {
         pdfs
       };
 
-      updateEducation(data.education.map(edu => 
+      const updatedEducations = data.education.map(edu => 
         edu.id === editingEducation.id ? updatedEducation : edu
-      ));
+      );
+      
+      const docRef = doc(db, "portfolios", "default");
+      await setDoc(docRef, { education: updatedEducations }, { merge: true });
+      
+      // Update local state in PortfolioDataContext
+      updateEducation(updatedEducation);
+      
       setEditingEducation(null);
       
       toast({
@@ -105,6 +124,7 @@ const EditEducation = () => {
         description: "Education entry has been updated successfully.",
       });
     } catch (error) {
+      console.error("Error updating education:", error);
       toast({
         title: "Upload Error",
         description: "Failed to upload files. Please try again.",
@@ -113,12 +133,24 @@ const EditEducation = () => {
     }
   };
 
-  const handleRemoveEducation = (id: string) => {
-    updateEducation(data.education.filter(edu => edu.id !== id));
-    toast({
-      title: "Education Removed",
-      description: "Education entry has been removed successfully.",
-    });
+  const handleRemoveEducation = async (id: string) => {
+    try {
+      const updatedEducations = data.education.filter(edu => edu.id !== id);
+      const docRef = doc(db, "portfolios", "default");
+      await setDoc(docRef, { education: updatedEducations }, { merge: true });
+      
+      toast({
+        title: "Education Removed",
+        description: "Education entry has been removed successfully.",
+      });
+    } catch (error) {
+      console.error("Error removing education:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove education entry. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const addAchievement = (isEditing: boolean = false) => {

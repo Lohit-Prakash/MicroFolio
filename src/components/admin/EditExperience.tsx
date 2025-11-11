@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import FileOrLinkInput from "./FileOrLinkInput";
 import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
 import { Plus, Trash2, X, Briefcase } from "lucide-react";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const EditExperience = () => {
   const { data, updateExperience, addExperience, removeExperience } = usePortfolio();
@@ -72,6 +74,8 @@ const EditExperience = () => {
     if (!editingExperience) return;
     
     try {
+      console.log("Starting experience update:", editingExperience);
+      
       // Upload any data URLs to Firebase Storage
       const images = await normalizeMediaUrlsToGCS("experience/images", editingExperience.images || []);
       const pdfs = await normalizeMediaUrlsToGCS("experience/pdfs", editingExperience.pdfs || []);
@@ -82,16 +86,29 @@ const EditExperience = () => {
         pdfs
       };
       
+      // Update the entire experience array in Firestore
       const updatedExperiences = data.experience.map(exp => 
         exp.id === editingExperience.id ? updatedExperience : exp
       );
-      updateExperience(updatedExperiences);
+      
+      console.log("Updating Firestore with experiences:", updatedExperiences);
+      
+      // Directly update Firestore with merge to ensure changes persist
+      const docRef = doc(db, "portfolios", "default");
+      await setDoc(docRef, { experience: updatedExperiences }, { merge: true });
+      
+      // Update local state in PortfolioDataContext
+      updateExperience(updatedExperience);
+      
+      console.log("Firestore update successful");
+      
       setEditingExperience(null);
       toast({
         title: "Experience Updated",
         description: "Experience has been successfully updated.",
       });
     } catch (error) {
+      console.error("Error updating experience:", error);
       toast({
         title: "Upload Error",
         description: "Failed to upload files. Please try again.",

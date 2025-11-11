@@ -13,6 +13,8 @@ import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
 import { useUploadProgress } from "@/hooks/use-upload-progress";
 import UploadProgressBar from "./UploadProgressBar";
 import { Plus, Trash2, X, FolderOpen } from "lucide-react";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const EditProjects = () => {
   const { data, updateProjects, addProject, removeProject } = usePortfolio();
@@ -116,6 +118,8 @@ const EditProjects = () => {
     resetProgress();
     
     try {
+      console.log("Starting project update:", editingProject);
+      
       const totalFiles = (editingProject.images?.length || 0) + (editingProject.pdfs?.length || 0);
       if (totalFiles > 0) {
         startUpload(totalFiles);
@@ -139,9 +143,21 @@ const EditProjects = () => {
         pdfs
       };
       
-      await updateProjects(data.projects.map(p => 
+      // Update the entire projects array
+      const updatedProjects = data.projects.map(p => 
         p.id === editingProject.id ? updatedProject : p
-      ));
+      );
+      
+      console.log("Updating Firestore with projects:", updatedProjects);
+      
+      // Directly write to Firestore to ensure persistence
+      const docRef = doc(db, "portfolios", "default");
+      await setDoc(docRef, { projects: updatedProjects }, { merge: true });
+      
+      // Update local state in PortfolioDataContext
+      updateProjects(updatedProject);
+      
+      console.log("Firestore update successful");
       
       setEditingProject(null);
       completeUpload();
@@ -151,6 +167,7 @@ const EditProjects = () => {
         description: "Project has been successfully updated.",
       });
     } catch (error) {
+      console.error("Error updating project:", error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setError(errorMessage);
       toast({
