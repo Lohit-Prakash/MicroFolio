@@ -446,8 +446,11 @@ const EditExperience = () => {
 
       {/* Edit Experience Form */}
       {editingExperience && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in">
-          <Card className="shadow-2xl rounded-2xl w-full max-w-2xl mx-auto animate-in slide-in-from-top-8 card-modern animate-scale-up mt-8">
+        // Backdrop is non-interactive so users can still interact with other parts
+        // of the admin while the modal is open if desired. The Card itself
+        // explicitly enables pointer events so the modal remains usable.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in pointer-events-none">
+          <Card className="pointer-events-auto shadow-2xl rounded-2xl w-full max-w-2xl mx-auto animate-in slide-in-from-top-8 card-modern animate-scale-up mt-8">
             <CardHeader className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-blue-500/10">

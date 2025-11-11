@@ -548,8 +548,9 @@ const EditEducation = () => {
 
       {/* Edit Education Modal/Form */}
       {editingEducation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in">
-          <Card className="shadow-2xl rounded-2xl w-full max-w-2xl mx-auto animate-in slide-in-from-top-8 border-primary">
+        // Backdrop is non-interactive; modal card remains interactive
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in pointer-events-none">
+          <Card className="pointer-events-auto shadow-2xl rounded-2xl w-full max-w-2xl mx-auto animate-in slide-in-from-top-8 border-primary">
             <CardHeader>
               <CardTitle>Edit Education</CardTitle>
             </CardHeader>

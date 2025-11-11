@@ -39,14 +39,6 @@ const EditProjects = () => {
   const [newImage, setNewImage] = useState("");
   const [newPdf, setNewPdf] = useState("");
 
-  useEffect(() => {
-    if (editingProject) {
-      const updatedProject = data.projects.find(p => p.id === editingProject.id);
-      if (updatedProject) {
-        setEditingProject(updatedProject);
-      }
-    }
-  }, [data.projects, editingProject]);
 
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -564,8 +556,10 @@ const EditProjects = () => {
 
       {/* Edit Project Form */}
       {editingProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in px-2">
-          <Card className="shadow-2xl rounded-2xl w-full max-w-lg mx-auto animate-in slide-in-from-top-8 card-modern animate-scale-up mt-8 overflow-y-auto max-h-screen p-2 sm:p-6">
+        // Allow interaction with background elements while the modal is open by default
+        // (pointer-events are disabled on the backdrop but enabled on the modal card)
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in px-2 pointer-events-none">
+          <Card className="pointer-events-auto shadow-2xl rounded-2xl w-full max-w-lg mx-auto animate-in slide-in-from-top-8 card-modern animate-scale-up mt-8 overflow-y-auto max-h-screen p-2 sm:p-6">
             <CardHeader className="space-y-4">
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="p-2 rounded-lg bg-blue-500/10">
@@ -600,6 +594,47 @@ const EditProjects = () => {
                     className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="edit-institution" className="text-sm font-semibold text-foreground/80">Institution</Label>
+                  <Input
+                    id="edit-institution"
+                    value={editingProject.institution}
+                    onChange={(e) => setEditingProject({...editingProject, institution: e.target.value})}
+                    required
+                    className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="edit-type" className="text-sm font-semibold text-foreground/80">Project Type</Label>
+                  <Select value={editingProject.type} onValueChange={(value) => setEditingProject({...editingProject, type: value})}>
+                    <SelectTrigger className="transition-all duration-300 focus:shadow-glow hover:shadow-medium">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Research Project">Research Project</SelectItem>
+                      <SelectItem value="Major Project">Major Project</SelectItem>
+                      <SelectItem value="Internship Project">Internship Project</SelectItem>
+                      <SelectItem value="Personal Project">Personal Project</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="edit-status" className="text-sm font-semibold text-foreground/80">Status</Label>
+                <Select value={editingProject.status} onValueChange={(value) => setEditingProject({...editingProject, status: value})}>
+                  <SelectTrigger className="transition-all duration-300 focus:shadow-glow hover:shadow-medium">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                    <SelectItem value="Ongoing">Ongoing</SelectItem>
+                    <SelectItem value="Patented">Patented</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-3">
