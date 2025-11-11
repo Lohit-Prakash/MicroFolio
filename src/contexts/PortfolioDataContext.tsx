@@ -181,9 +181,6 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   const updateFirestore = async (updatedData: Partial<PortfolioData>) => {
     try {
       const docRef = doc(db, "portfolios", userId);
-      // TEMP DEBUG LOG - remove after verification
-      console.log("[DEBUG] updateFirestore called with:", JSON.parse(JSON.stringify(updatedData)));
-      console.log("[DEBUG] Writing to doc:", docRef.path);
       // Use setDoc with merge: true to create document if it doesn't exist AND merge with existing data
       await setDoc(docRef, updatedData, { merge: true });
       console.log("Firestore update successful");
@@ -207,13 +204,9 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
   const updateProject = async (project: Project) => {
     try {
-      // TEMP DEBUG LOG - remove after verification
-      console.log('[DEBUG] updateProject called with project:', JSON.parse(JSON.stringify(project)));
       const updatedProjects = data.projects.map((p) => (p.id === project.id ? project : p));
-      console.log('[DEBUG] updateProject will write projects array of length', updatedProjects.length);
       await updateFirestore({ projects: updatedProjects });
     } catch (error) {
-      console.error('[DEBUG] updateProject error:', error);
       throw error;
     }
   };
