@@ -3,17 +3,40 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { PortfolioProvider } from "@/contexts/PortfolioDataContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./components/Login";
 import AdminDashboard from "./components/AdminDashboard";
+import { logPageView, logCustomEvent } from "@/lib/analytics";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  console.log("App component rendering...");
+  useEffect(() => {
+    // Log initial page view
+    logPageView("portfolio_home");
+    
+    // Log app initialization
+    logCustomEvent("app_launched", {
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+    });
+
+    // Listen to route changes
+    const handlePopState = () => {
+      const path = window.location.hash.replace("#", "") || "/";
+      logPageView(`page_${path}`);
+    };
+
+    window.addEventListener("hashchange", handlePopState);
+
+    return () => {
+      window.removeEventListener("hashchange", handlePopState);
+    };
+  }, []);
   
   return (
     <QueryClientProvider client={queryClient}>
