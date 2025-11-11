@@ -1,26 +1,15 @@
 import { analytics, db } from "./firebase";
-import { collection, query, where, getDocs, getDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { getDoc, doc, setDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
 import { logEvent } from "firebase/analytics";
 
-export interface PageViewEvent {
-  page: string;
-  timestamp: Date;
-  sessionId: string;
-  userAgent: string;
-  referrer: string;
-}
-
 export interface AnalyticsMetrics {
-  totalVisitors: number;
   totalPageViews: number;
-  uniqueSessions: number;
-  avgSessionDuration: number;
   resumeDownloads: number;
   contactSubmissions: number;
-  topPages: Array<{ page: string; views: number; percentage: number }>;
-  trafficSources: Array<{ source: string; count: number; percentage: number }>;
-  deviceBreakdown: Array<{ device: string; count: number; percentage: number }>;
-  topLocations: Array<{ location: string; count: number }>;
+  projectViews: number;
+  emailClicks: number;
+  totalEvents: number;
+  lastUpdated: string;
 }
 
 // Log custom events to Firebase Analytics
@@ -30,6 +19,9 @@ export const logCustomEvent = (eventName: string, parameters?: Record<string, an
       ...parameters,
       timestamp: new Date().toISOString(),
     });
+    
+    // Also increment counter in Firestore
+    incrementEventCounter(eventName);
   } catch (error) {
     console.error("Error logging analytics event:", error);
   }
@@ -42,6 +34,7 @@ export const logPageView = (pageName: string) => {
     page_title: document.title,
     page_path: window.location.pathname,
   });
+  incrementEventCounter("totalPageViews");
 };
 
 // Log resume download
@@ -50,6 +43,7 @@ export const logResumeDownload = () => {
     download_type: "PDF",
     timestamp: new Date().toISOString(),
   });
+  incrementEventCounter("resumeDownloads");
 };
 
 // Log contact form submission
@@ -59,6 +53,7 @@ export const logContactSubmission = (formData: Record<string, any>) => {
     email: formData.email ? "provided" : "not_provided",
     message_length: formData.message?.length || 0,
   });
+  incrementEventCounter("contactSubmissions");
 };
 
 // Log project view
@@ -66,6 +61,13 @@ export const logProjectView = (projectName: string) => {
   logCustomEvent("project_view", {
     project_name: projectName,
   });
+  incrementEventCounter("projectViews");
+};
+
+// Log email click
+export const logEmailClick = () => {
+  logCustomEvent("email_contact_click");
+  incrementEventCounter("emailClicks");
 };
 
 // Log modal open
@@ -75,56 +77,65 @@ export const logModalOpen = (modalType: string) => {
   });
 };
 
-// Store analytics data to Firestore
-export const storeAnalyticsSnapshot = async () => {
+// Increment event counter in Firestore
+export const incrementEventCounter = async (eventName: string) => {
   try {
-    const analyticsRef = doc(db, "analytics", "snapshots");
-    const existingDoc = await getDoc(analyticsRef);
+    const eventsRef = doc(db, "analytics", "events");
+    const existingDoc = await getDoc(eventsRef);
     const existingData = existingDoc.data() || {};
 
-    await setDoc(analyticsRef, {
+    const currentCount = existingData[eventName] || 0;
+    await setDoc(eventsRef, {
       ...existingData,
+      [eventName]: currentCount + 1,
       lastUpdated: serverTimestamp(),
-      pageViews: (existingData.pageViews || 0) + 1,
     }, { merge: true });
   } catch (error) {
-    console.error("Error storing analytics snapshot:", error);
+    console.error("Error incrementing event counter:", error);
   }
 };
 
-// Get analytics metrics from Firestore
+// Get analytics metrics from Firestore (Real Data)
 export const getAnalyticsMetrics = async (): Promise<AnalyticsMetrics> => {
   try {
-    const analyticsRef = doc(db, "analytics", "snapshots");
-    const snap = await getDoc(analyticsRef);
+    const eventsRef = doc(db, "analytics", "events");
+    const snap = await getDoc(eventsRef);
     const data = snap.data() || {};
 
-    return {
-      totalVisitors: data.totalVisitors || 0,
-      totalPageViews: data.pageViews || 0,
-      uniqueSessions: data.uniqueSessions || 0,
-      avgSessionDuration: data.avgSessionDuration || 0,
+    const metrics: AnalyticsMetrics = {
+      totalPageViews: data.totalPageViews || 0,
       resumeDownloads: data.resumeDownloads || 0,
       contactSubmissions: data.contactSubmissions || 0,
-      topPages: data.topPages || [],
-      trafficSources: data.trafficSources || [],
-      deviceBreakdown: data.deviceBreakdown || [],
-      topLocations: data.topLocations || [],
+      projectViews: data.projectViews || 0,
+      emailClicks: data.emailClicks || 0,
+      totalEvents: (data.totalPageViews || 0) + (data.resumeDownloads || 0) + (data.contactSubmissions || 0) + (data.projectViews || 0) + (data.emailClicks || 0),
+      lastUpdated: data.lastUpdated || new Date().toISOString(),
     };
+
+    return metrics;
   } catch (error) {
     console.error("Error fetching analytics metrics:", error);
     return {
-      totalVisitors: 0,
       totalPageViews: 0,
-      uniqueSessions: 0,
-      avgSessionDuration: 0,
       resumeDownloads: 0,
       contactSubmissions: 0,
-      topPages: [],
-      trafficSources: [],
-      deviceBreakdown: [],
-      topLocations: [],
+      projectViews: 0,
+      emailClicks: 0,
+      totalEvents: 0,
+      lastUpdated: new Date().toISOString(),
     };
+  }
+};
+
+// Get event statistics
+export const getEventStatistics = async () => {
+  try {
+    const eventsRef = doc(db, "analytics", "events");
+    const snap = await getDoc(eventsRef);
+    return snap.data() || {};
+  } catch (error) {
+    console.error("Error fetching event statistics:", error);
+    return {};
   }
 };
 
@@ -162,34 +173,4 @@ export const trackUserBehavior = (action: string, details?: Record<string, any>)
     ...details,
     timestamp: new Date().toISOString(),
   });
-};
-
-// Increment event counter
-export const incrementEventCounter = async (eventName: string) => {
-  try {
-    const eventsRef = doc(db, "analytics", "events");
-    const existingDoc = await getDoc(eventsRef);
-    const existingData = existingDoc.data() || {};
-
-    const currentCount = existingData[eventName] || 0;
-    await setDoc(eventsRef, {
-      ...existingData,
-      [eventName]: currentCount + 1,
-      lastUpdated: serverTimestamp(),
-    }, { merge: true });
-  } catch (error) {
-    console.error("Error incrementing event counter:", error);
-  }
-};
-
-// Get event statistics
-export const getEventStatistics = async () => {
-  try {
-    const eventsRef = doc(db, "analytics", "events");
-    const snap = await getDoc(eventsRef);
-    return snap.data() || {};
-  } catch (error) {
-    console.error("Error fetching event statistics:", error);
-    return {};
-  }
 };

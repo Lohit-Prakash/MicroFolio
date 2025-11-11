@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, ExternalLink, Download } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioDataContext";
-import { logCustomEvent, logResumeDownload } from "@/lib/analytics";
+import { logEmailClick, logResumeDownload } from "@/lib/analytics";
 
 const Contact = () => {
   const { data } = usePortfolio();
@@ -100,7 +100,7 @@ const Contact = () => {
                       variant="secondary"
                       className="w-full"
                       asChild
-                      onClick={() => logCustomEvent("email_contact_click")}
+                      onClick={() => logEmailClick()}
                     >
                       <a href="mailto:sjlohitp@gmail.com">
                         Send Me an Email

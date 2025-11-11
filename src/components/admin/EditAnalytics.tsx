@@ -10,15 +10,16 @@ import { getFirebaseAnalytics } from "@/lib/analytics";
 const EditAnalytics = () => {
   const [timeRange, setTimeRange] = useState("7d");
   const [eventStats, setEventStats] = useState<Record<string, number>>({});
-  const [firestoreInfo, setFirestoreInfo] = useState({
+  const [loading, setLoading] = useState(true);
+  const [firestoreInfo] = useState({
     projectId: "myportfolio-50a76",
     region: "us-central1",
     docLimit: "1,000,000",
     readLimit: "100,000 reads/day",
     writeLimit: "20,000 writes/day",
   });
-  const [loading, setLoading] = useState(true);
 
+  // Load analytics on mount and subscribe to real-time updates
   useEffect(() => {
     const loadAnalytics = async () => {
       try {
@@ -30,7 +31,13 @@ const EditAnalytics = () => {
         setLoading(false);
       }
     };
+    
     loadAnalytics();
+    
+    // Set up interval to refresh analytics every 5 seconds
+    const interval = setInterval(loadAnalytics, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Mock analytics data with time range
@@ -69,28 +76,28 @@ const EditAnalytics = () => {
   const stats = [
     {
       title: "Total Page Views",
-      value: eventStats.totalPageViews ? String(eventStats.totalPageViews) : "0",
+      value: String(eventStats.totalPageViews || 0),
       change: "+12.5%",
       icon: Eye,
       color: "text-blue-600"
     },
     {
       title: "Resume Downloads",
-      value: eventStats.resumeDownloads ? String(eventStats.resumeDownloads) : "0",
+      value: String(eventStats.resumeDownloads || 0),
       change: "+15.3%",
       icon: Download,
       color: "text-purple-600"
     },
     {
       title: "Contact Submissions",
-      value: eventStats.contactSubmissions ? String(eventStats.contactSubmissions) : "0",
+      value: String(eventStats.contactSubmissions || 0),
       change: "+8.2%",
       icon: Users,
       color: "text-green-600"
     },
     {
-      title: "Unique Sessions",
-      value: eventStats.uniqueSessions ? String(eventStats.uniqueSessions) : "0",
+      title: "Project Views",
+      value: String(eventStats.projectViews || 0),
       change: "+5.1%",
       icon: Clock,
       color: "text-orange-600"
