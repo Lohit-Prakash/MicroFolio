@@ -29,6 +29,7 @@ const AdminDashboard = () => {
     { id: "education", label: "Education", icon: GraduationCap },
     { id: "contact", label: "Contact", icon: Mail },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "debug", label: "Debug Storage", icon: Settings },
   ];
 
   useEffect(() => {
@@ -122,6 +123,10 @@ const AdminDashboard = () => {
         return <EditContact />;
       case "analytics":
         return <EditAnalytics />;
+      case "debug":
+        // lazy import to avoid adding to main bundle
+        const DebugStorage = require("./admin/DebugStorage").default;
+        return <DebugStorage />;
       default:
         return <EditProfile />;
     }

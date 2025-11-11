@@ -24,50 +24,58 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/20">
+    <section className="relative min-h-[80vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/20">
       {/* Background Elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 gradient-hero opacity-40"></div>
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-accent/20 to-primary/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/10 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/4 left-1/4 md:left-1/4 -translate-x-1/4 md:translate-x-0 w-56 md:w-96 h-56 md:h-96 bg-gradient-to-br from-accent/20 to-primary/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 md:right-1/4 w-52 md:w-80 h-52 md:h-80 bg-gradient-to-br from-primary/20 to-accent/10 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
       </div>
 
       {/* Theme Toggle */}
-      <div className="absolute top-6 right-6 z-20">
+      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-20">
         <div className="card-glass p-2 rounded-2xl">
           <ThemeToggle />
         </div>
       </div>
 
       {/* Hero Content */}
-      <div className="container mx-auto px-6 z-10 text-center">
+      <div className="container-responsive z-10 text-center">
         <div className="max-w-5xl mx-auto">
           {/* Profile Picture */}
-          <div className="mb-8 animate-fade-up">
-            <div className="w-40 h-40 mx-auto rounded-3xl bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 p-1 shadow-2xl shadow-primary/20 backdrop-blur-sm">
-              <div className="w-full h-full rounded-3xl bg-gradient-to-br from-background/95 to-muted/50 flex items-center justify-center text-5xl font-bold text-primary shadow-inner border border-white/10">
-                {personalInfo.name.split(' ').map(n => n[0]).join('')}
+          <div className="mb-6 sm:mb-8 animate-fade-up">
+            <div className="w-28 h-28 sm:w-40 sm:h-40 mx-auto rounded-3xl bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 p-1 shadow-2xl shadow-primary/20 backdrop-blur-sm">
+              <div className="w-full h-full rounded-3xl bg-gradient-to-br from-background/95 to-muted/50 flex items-center justify-center text-3xl sm:text-5xl font-bold text-primary shadow-inner border border-white/10 overflow-hidden">
+                {personalInfo.profileImage ? (
+                  <img 
+                    src={personalInfo.profileImage} 
+                    alt="Profile" 
+                    className="w-full h-full rounded-3xl object-cover img-responsive"
+                  />
+                ) : (
+                  personalInfo.name.split(' ').map(n => n[0]).join('')
+                )}
               </div>
             </div>
           </div>
 
           <div className="animate-fade-up">
-            <h1 className="text-6xl md:text-8xl font-bold text-foreground mb-8 leading-tight tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-foreground mb-6 sm:mb-8 leading-tight tracking-tight">
               {personalInfo.name.split(' ').slice(0, 2).join(' ')}
-              <span className="block text-accent text-4xl md:text-5xl font-medium mt-4 animate-fade-in-delay">
+              <span className="block text-accent text-2xl sm:text-3xl md:text-5xl font-medium mt-3 sm:mt-4 animate-fade-in-delay">
                 {personalInfo.name.split(' ').slice(2).join(' ')}
               </span>
             </h1>
           </div>
           
           <div className="animate-slide-up" style={{animationDelay: '0.3s'}}>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed font-light">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 sm:mb-12 max-w-3xl sm:max-w-4xl mx-auto leading-relaxed font-light">
               {personalInfo.description}
             </p>
           </div>
 
           <div className="animate-slide-up" style={{animationDelay: '0.5s'}}>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-6 sm:mb-8">
               <div className="card-minimal px-4 py-2 flex items-center gap-3 text-foreground/80 hover:text-foreground transition-elegant">
                 <MapPin className="w-5 h-5 text-accent" />
                 <span className="font-medium">{personalInfo.location}</span>
@@ -83,7 +91,7 @@ const Hero = () => {
             </div>
 
             {/* Social Links */}
-            <div className="flex justify-center gap-4 mb-8 animate-fade-in animation-delay-1000">
+            <div className="flex justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 animate-fade-in animation-delay-1000">
               {personalInfo.linkedin && (
                 <Button 
                   variant="ghost" 
@@ -148,10 +156,10 @@ const Hero = () => {
           </div>
 
           <div className="animate-scale-up" style={{animationDelay: '0.7s'}}>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
               <Button 
                 size="lg" 
-                className="px-10 py-4 text-lg font-medium bg-accent hover:bg-accent/90 text-accent-foreground shadow-strong hover:shadow-glow transition-elegant hover:scale-[1.02] rounded-2xl"
+                className="px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-medium bg-accent hover:bg-accent/90 text-accent-foreground shadow-strong hover:shadow-glow transition-elegant hover:scale-[1.02] rounded-2xl"
                 onClick={() => scrollToSection('projects')}
               >
                 View My Work
@@ -159,7 +167,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="px-10 py-4 text-lg font-medium border-2 border-accent/30 text-foreground hover:bg-accent/5 hover:border-accent shadow-medium hover:shadow-strong transition-elegant hover:scale-[1.02] rounded-2xl backdrop-blur-sm"
+                className="px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-medium border-2 border-accent/30 text-foreground hover:bg-accent/5 hover:border-accent shadow-medium hover:shadow-strong transition-elegant hover:scale-[1.02] rounded-2xl backdrop-blur-sm"
                 onClick={() => scrollToSection('contact')}
               >
                 Contact Me
@@ -171,7 +179,7 @@ const Hero = () => {
 
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="absolute bottom-8 sm:bottom-12 left-1/2 transform -translate-x-1/2 z-10">
         <div className="flex flex-col items-center gap-1 animate-fade-in">
           <span className="text-xs text-muted-foreground/60 font-medium tracking-wider mb-1">SCROLL</span>
           <div className="relative">

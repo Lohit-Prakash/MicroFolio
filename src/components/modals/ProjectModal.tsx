@@ -3,6 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X, Github, ExternalLink, FileText } from "lucide-react";
 import { useState } from "react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext
+} from "@/components/ui/carousel";
 
 interface Project {
   title: string;
@@ -50,15 +57,29 @@ const ProjectModal = ({ project, isOpen, onClose }: ProjectModalProps) => {
           </DialogHeader>
 
           <div className="space-y-6">
-            {/* Project Image Gallery */}
+            {/* Project Image Gallery with Carousel */}
             <div className="relative">
-              <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-                <img 
-                  src={images[currentImageIndex]} 
-                  alt={`${project.title} - Image ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover transition-all duration-500"
-                />
-              </div>
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {images.map((image, index) => (
+                    <CarouselItem key={index}>
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
+                        <img
+                          src={image}
+                          alt={`${project.title} - Image ${index + 1}`}
+                          className="w-full h-full object-cover transition-all duration-500"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {images.length > 1 && (
+                  <>
+                    <CarouselPrevious className="left-2" />
+                    <CarouselNext className="right-2" />
+                  </>
+                )}
+              </Carousel>
               {images.length > 1 && (
                 <div className="flex justify-center gap-2 mt-4">
                   {images.map((_, index) => (

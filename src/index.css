@@ -151,6 +151,18 @@ All colors MUST be HSL.
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
   }
+
+  /* Mobile-friendly defaults */
+  html, body {
+    -webkit-text-size-adjust: 100%; /* prevent font inflation on iOS */
+    -ms-touch-action: manipulation;
+    touch-action: manipulation; /* improve tap responsiveness */
+    overscroll-behavior-y: contain; /* avoid accidental navigation gestures */
+  }
+
+  a, button, input, label, select, textarea {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+  }
 }
 
 @layer components {
@@ -406,7 +418,10 @@ All colors MUST be HSL.
 /* Responsive utilities */
 @layer utilities {
   .container-responsive {
+    /* slightly reduced padding on very small screens and safe-area aware */
     @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    padding-left: env(safe-area-inset-left, 1rem);
+    padding-right: env(safe-area-inset-right, 1rem);
   }
   
   .grid-responsive {
@@ -419,5 +434,17 @@ All colors MUST be HSL.
   
   .space-responsive {
     @apply space-y-4 sm:space-y-6 lg:space-y-8;
+  }
+
+  /* Utility to prevent horizontal overflow from large elements */
+  .no-horizontal-overflow {
+    overflow-x: hidden;
+  }
+
+  /* Make images responsive by default */
+  .img-responsive {
+    max-width: 100%;
+    height: auto;
+    display: block;
   }
 }

@@ -7,15 +7,16 @@ import Education from "@/components/Education";
 import Experience from "@/components/Experience";
 import Projects from "@/components/Projects";
 import Contact from "@/components/Contact";
-import Login from "@/components/Login";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import SectionDivider from "@/components/SectionDivider";
+import { usePortfolio } from "@/contexts/PortfolioDataContext";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("about");
+  const { loading } = usePortfolio();
 
   const navigateToAdmin = () => {
-    window.location.href = '/admin';
+    window.location.href = '/#/admin';
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -49,6 +50,14 @@ const Index = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen">

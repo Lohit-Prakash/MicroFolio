@@ -1,0 +1,50 @@
+query getPortfolioData($userId: String!) {
+  user(id: $userId) {
+    name
+    email
+    bio
+    phone
+    LinkedInUrl
+    GitHubUrl
+    photoUrl
+    education {
+      degree
+      institution
+      startDate
+      endDate
+      major
+      minor
+      gpa
+      description
+    }
+    experience {
+      title
+      company
+      startDate
+      endDate
+      location
+      description
+    }
+    projects {
+      title
+      description
+      technologiesUsed
+      demoUrl
+      repositoryUrl
+      imageUrl
+    }
+    research {
+      title
+      abstract
+      publicationDate
+      journalOrConference
+      fullPaperUrl
+      presentationUrl
+    }
+    skills {
+      name
+      category
+      proficiencyLevel
+    }
+  }
+}

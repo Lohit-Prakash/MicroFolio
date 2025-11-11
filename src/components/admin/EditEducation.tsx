@@ -6,6 +6,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { usePortfolio, Education } from "@/contexts/PortfolioDataContext";
+import FileOrLinkInput from "./FileOrLinkInput";
+import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
 import { GraduationCap, Plus, Edit2, Trash2, X, Image, FileText } from "lucide-react";
 
 const EditEducation = () => {
@@ -34,49 +36,81 @@ const EditEducation = () => {
   const [newImage, setNewImage] = useState("");
   const [newPdf, setNewPdf] = useState("");
 
-  const handleAddEducation = (e: React.FormEvent) => {
+  const handleAddEducation = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const education: Education = {
-      id: Date.now().toString(),
-      ...newEducation
-    };
-    
-    updateEducation([...data.education, education]);
-    setNewEducation({
-      degree: "",
-      institution: "",
-      location: "",
-      period: "",
-      cgpa: "",
-      specialization: "",
-      description: "",
-      achievements: [],
-      relevantCourses: [],
-      images: [],
-      pdfs: []
-    });
-    setShowAddForm(false);
-    
-    toast({
-      title: "Education Added",
-      description: "Education entry has been added successfully.",
-    });
+    try {
+      // Upload any data URLs to Firebase Storage
+      const images = await normalizeMediaUrlsToGCS("education/images", newEducation.images);
+      const pdfs = await normalizeMediaUrlsToGCS("education/pdfs", newEducation.pdfs);
+      
+      const education: Education = {
+        id: Date.now().toString(),
+        ...newEducation,
+        images,
+        pdfs
+      };
+      
+      updateEducation([...data.education, education]);
+      setNewEducation({
+        degree: "",
+        institution: "",
+        location: "",
+        period: "",
+        cgpa: "",
+        specialization: "",
+        description: "",
+        achievements: [],
+        relevantCourses: [],
+        images: [],
+        pdfs: []
+      });
+      setShowAddForm(false);
+      
+      toast({
+        title: "Education Added",
+        description: "Education entry has been added successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Upload Error",
+        description: "Failed to upload files. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleUpdateEducation = (e: React.FormEvent) => {
+  const handleUpdateEducation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingEducation) return;
 
-    updateEducation(data.education.map(edu => 
-      edu.id === editingEducation.id ? editingEducation : edu
-    ));
-    setEditingEducation(null);
-    
-    toast({
-      title: "Education Updated",
-      description: "Education entry has been updated successfully.",
-    });
+    try {
+      // Upload any data URLs to Firebase Storage
+      const images = await normalizeMediaUrlsToGCS("education/images", editingEducation.images || []);
+      const pdfs = await normalizeMediaUrlsToGCS("education/pdfs", editingEducation.pdfs || []);
+      
+      const updatedEducation = {
+        ...editingEducation,
+        images,
+        pdfs
+      };
+
+      updateEducation(data.education.map(edu => 
+        edu.id === editingEducation.id ? updatedEducation : edu
+      ));
+      setEditingEducation(null);
+      
+      toast({
+        title: "Education Updated",
+        description: "Education entry has been updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Upload Error",
+        description: "Failed to upload files. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRemoveEducation = (id: string) => {
@@ -335,16 +369,15 @@ const EditEducation = () => {
                   <Image className="w-4 h-4" />
                   Images
                 </label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add image URL"
-                    value={newImage}
-                    onChange={(e) => setNewImage(e.target.value)}
-                  />
-                  <Button type="button" onClick={() => addImage(false)}>
-                    Add
-                  </Button>
-                </div>
+                <FileOrLinkInput
+                  label="image"
+                  placeholder="Add image URL or choose a file"
+                  accept="image/*"
+                  onAdd={(value) => setNewEducation({
+                    ...newEducation,
+                    images: [...newEducation.images, value]
+                  })}
+                />
                 <div className="flex flex-wrap gap-2">
                   {newEducation.images.map((image, index) => (
                     <Badge key={index} variant="secondary" className="gap-1">
@@ -364,16 +397,15 @@ const EditEducation = () => {
                   <FileText className="w-4 h-4" />
                   PDFs
                 </label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add PDF URL"
-                    value={newPdf}
-                    onChange={(e) => setNewPdf(e.target.value)}
-                  />
-                  <Button type="button" onClick={() => addPdf(false)}>
-                    Add
-                  </Button>
-                </div>
+                <FileOrLinkInput
+                  label="PDF"
+                  placeholder="Add PDF URL or choose a file"
+                  accept="application/pdf"
+                  onAdd={(value) => setNewEducation({
+                    ...newEducation,
+                    pdfs: [...newEducation.pdfs, value]
+                  })}
+                />
                 <div className="flex flex-wrap gap-2">
                   {newEducation.pdfs.map((pdf, index) => (
                     <Badge key={index} variant="secondary" className="gap-1">
@@ -485,12 +517,13 @@ const EditEducation = () => {
 
       {/* Edit Education Modal/Form */}
       {editingEducation && (
-        <Card className="border-primary">
-          <CardHeader>
-            <CardTitle>Edit Education</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleUpdateEducation} className="space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in">
+          <Card className="shadow-2xl rounded-2xl w-full max-w-2xl mx-auto animate-in slide-in-from-top-8 border-primary">
+            <CardHeader>
+              <CardTitle>Edit Education</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateEducation} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   placeholder="Degree"
@@ -593,16 +626,18 @@ const EditEducation = () => {
                   <Image className="w-4 h-4" />
                   Images
                 </label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add image URL"
-                    value={newImage}
-                    onChange={(e) => setNewImage(e.target.value)}
-                  />
-                  <Button type="button" onClick={() => addImage(true)}>
-                    Add
-                  </Button>
-                </div>
+                <FileOrLinkInput
+                  label="image"
+                  placeholder="Add image URL or choose a file"
+                  accept="image/*"
+                  onAdd={(value) => {
+                    if (!editingEducation) return;
+                    setEditingEducation({
+                      ...editingEducation,
+                      images: [...(editingEducation.images || []), value]
+                    });
+                  }}
+                />
                 <div className="flex flex-wrap gap-2">
                   {(editingEducation.images || []).map((image, index) => (
                     <Badge key={index} variant="secondary" className="gap-1">
@@ -622,16 +657,18 @@ const EditEducation = () => {
                   <FileText className="w-4 h-4" />
                   PDFs
                 </label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add PDF URL"
-                    value={newPdf}
-                    onChange={(e) => setNewPdf(e.target.value)}
-                  />
-                  <Button type="button" onClick={() => addPdf(true)}>
-                    Add
-                  </Button>
-                </div>
+                <FileOrLinkInput
+                  label="PDF"
+                  placeholder="Add PDF URL or choose a file"
+                  accept="application/pdf"
+                  onAdd={(value) => {
+                    if (!editingEducation) return;
+                    setEditingEducation({
+                      ...editingEducation,
+                      pdfs: [...(editingEducation.pdfs || []), value]
+                    });
+                  }}
+                />
                 <div className="flex flex-wrap gap-2">
                   {(editingEducation.pdfs || []).map((pdf, index) => (
                     <Badge key={index} variant="secondary" className="gap-1">
@@ -654,6 +691,7 @@ const EditEducation = () => {
             </form>
           </CardContent>
         </Card>
+        </div>
       )}
     </div>
   );

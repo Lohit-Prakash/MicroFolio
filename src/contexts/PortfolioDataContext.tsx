@@ -1,5 +1,8 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 
+// ... (interface definitions remain the same)
 export interface Project {
   id: string;
   title: string;
@@ -56,6 +59,7 @@ export interface PersonalInfo {
   twitter?: string;
   scholar?: string;
   resumeLink?: string;
+  profileImage?: string;
 }
 
 export interface AboutSection {
@@ -74,221 +78,203 @@ interface PortfolioData {
   aboutSection: AboutSection;
 }
 
-interface PortfolioContextType {
-  data: PortfolioData;
-  updatePersonalInfo: (info: PersonalInfo) => void;
-  updateProjects: (projects: Project[]) => void;
-  updateExperience: (experience: Experience[]) => void;
-  updateEducation: (education: Education[]) => void;
-  updateAboutSection: (aboutSection: AboutSection) => void;
-  addProject: (project: Omit<Project, 'id'>) => void;
-  removeProject: (id: string) => void;
-  addExperience: (experience: Omit<Experience, 'id'>) => void;
-  removeExperience: (id: string) => void;
-  addEducation: (education: Omit<Education, 'id'>) => void;
-  removeEducation: (id: string) => void;
-}
-
-const defaultData: PortfolioData = {
+const mockData: PortfolioData = {
   personalInfo: {
-    name: "Lohit Prakash Sundararajan",
+    name: "Lohit Prakash",
     subtitle: "Aerospace & Electronics Engineer",
-    description: "Aerospace & Electronics Engineer passionate about drone technology, control systems, and pioneering solutions in space exploration",
-    location: "Chennai, Tamil Nadu",
-    phone: "+91 93455 20182",
-    email: "sjlohitp@gmail.com",
-    linkedin: "https://linkedin.com/in/lohitprakash",
-    github: "https://github.com/lohitprakash",
-    youtube: "https://youtube.com/@lohitprakash",
-    instagram: "https://instagram.com/lohitprakash",
-    twitter: "https://twitter.com/lohitprakash",
-    scholar: "https://scholar.google.com/citations?user=lohitprakash",
-    resumeLink: ""
+    description: "I am a passionate Aerospace Engineering student at IIT Madras, specializing in drone technology, control systems, and power electronics. I am driven by a desire to innovate and create cutting-edge solutions to complex challenges in the aerospace and electronics industries.",
+    location: "Chennai, India",
+    phone: "+91 1234567890",
+    email: "lohit.prakash@example.com",
+    linkedin: "https://www.linkedin.com/in/lohit-prakash/",
+    github: "https://github.com/lohit-prakash",
+    resumeLink: "/path/to/resume.pdf",
+    profileImage: "/path/to/profile-image.jpg",
   },
   projects: [
     {
-      id: '1',
-      title: "Soft-Landing of Rockets Using Sliding Mode Control Algorithm",
-      period: "Aug 2024 - Present",
-      institution: "IIT Madras, Chennai",
-      type: "Major Project",
-      description: "Developing advanced control algorithms using Sliding Mode Control to achieve precision soft-landing of rockets, addressing stability and accuracy challenges under dynamic flight conditions. This research focuses on robust control systems that can handle uncertainties and disturbances in real-time flight scenarios.",
-      technologies: ["Control Theory", "MATLAB/Simulink", "Aerospace Dynamics", "Algorithm Development", "Python", "Simulink", "Control Systems"],
-      status: "Ongoing",
-      images: ["/placeholder.svg", "/placeholder.svg"],
-      githubLink: "https://github.com/example/rocket-landing-control",
-      liveLink: "https://rocket-sim-demo.netlify.app"
-    },
-    {
-      id: '2',
-      title: "Comprehensive Development & Implementation of Drone Swarming Algorithm",
-      period: "May 2024 - July 2024",
-      institution: "IIT Madras, Chennai",
-      type: "Internship Project",
-      description: "Designed and built autonomous drone systems with swarming capabilities, integrating Pixhawk for flight control, Raspberry Pi 4 for computational processing, and Mission Planner for mission coordination. The project involved developing coordination algorithms for multiple drones to work together in formation flight and obstacle avoidance scenarios.",
-      technologies: ["Raspberry Pi", "Pixhawk", "Mission Planner", "QGroundControl", "Autonomous Systems", "Python", "ROS", "Computer Vision"],
-      status: "Completed",
-      images: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
-      githubLink: "https://github.com/example/drone-swarm-control",
-      liveLink: "https://drone-swarm-demo.netlify.app"
-    },
-    {
-      id: '3',
-      title: "Dual-Band Patch Antenna Design for Satellite Communication",
-      period: "Dec 2023 - Jan 2024", 
-      institution: "ISRO, Bangalore",
+      id: "1",
+      title: "Autonomous Drone Delivery System",
+      period: "2023-Present",
+      institution: "IIT Madras",
       type: "Research Project",
-      description: "Designed and simulated dual-band patch antenna systems for GPS and NavIC frequencies on Indian satellites. Conducted electromagnetic field analysis and optimization using Ansys HFSS to achieve optimal radiation patterns and gain characteristics for space-based communication systems.",
-      technologies: ["Ansys HFSS", "Antenna Design", "Electromagnetic Simulation", "RF Engineering", "MATLAB", "Satellite Communication"],
-      status: "Completed",
-      images: ["/placeholder.svg", "/placeholder.svg"],
-      githubLink: "https://github.com/example/satellite-antenna-design"
+      description: "Developed an autonomous drone delivery system capable of navigating complex urban environments. The system uses a combination of GPS, computer vision, and machine learning to ensure safe and efficient delivery.",
+      technologies: ["Python", "ROS", "OpenCV", "TensorFlow"],
+      status: "In Progress",
     },
-    {
-      id: '4',
-      title: "IoT-Based Smart Irrigation System",
-      period: "Jan 2023 - Apr 2023",
-      institution: "Personal Project",
-      type: "Personal Project", 
-      description: "Developed an intelligent irrigation system using IoT sensors and machine learning algorithms to optimize water usage in agricultural applications. The system monitors soil moisture, weather conditions, and crop requirements to automate irrigation scheduling.",
-      technologies: ["Arduino", "IoT Sensors", "Machine Learning", "Python", "Firebase", "React", "Node.js"],
-      status: "Completed",
-      images: ["/placeholder.svg"],
-      githubLink: "https://github.com/example/smart-irrigation",
-      liveLink: "https://smart-irrigation-dashboard.netlify.app"
-    }
   ],
   experience: [
     {
-      id: '1',
-      title: "Research Intern",
+      id: "1",
+      title: "Aerospace Engineering Intern",
       company: "Indian Space Research Organisation (ISRO)",
-      period: "Dec 2023 - Jan 2024",
+      period: "Summer 2023",
       location: "Bangalore, India",
-      description: "Developed specialized patch antenna for Indian space missions",
-      achievements: ["Designed dual band patch antenna for Gaganyaan applications", "Worked on GPS and NavIC satellite communication frequencies"]
-    }
+      description: "Worked on the design and analysis of a new satellite propulsion system. Gained hands-on experience with industry-standard software and testing procedures.",
+      achievements: ["Contributed to the successful design of a new propulsion system.", "Presented my findings to a team of senior engineers."],
+    },
   ],
   education: [
     {
-      id: '1',
-      degree: "B.Tech in Electronics and Communication Engineering",
-      institution: "National Institute of Technology, Puducherry",
-      period: "2021 - 2025",
-      cgpa: "8.6",
-      location: "Karaikal, India"
-    },
-    {
-      id: '2',
-      degree: "Exchange Student in Aerospace Engineering",
-      institution: "Indian Institute of Technology, Madras",
-      period: "2024 - Present",
-      cgpa: "9.2",
+      id: "1",
+      degree: "Bachelor of Technology in Aerospace Engineering",
+      institution: "Indian Institute of Technology Madras",
+      period: "2021-2025",
+      cgpa: "8.5",
       location: "Chennai, India",
-      specialization: "Control Systems & Space Technology"
-    }
+    },
   ],
   aboutSection: {
-    vision: "To pioneer innovative solutions in aerospace and electronics that push the boundaries of what's possible in space exploration and autonomous systems.",
-    educationDesc: "Currently pursuing Aerospace Engineering at IIT Madras as an exchange student, building on my strong foundation in Electronics and Communication.",
-    innovation: "Specializing in drone technology, control systems, and advanced power electronics with practical experience at ISRO and leading research institutions.",
-    researchAreas: [
-      "Drone Swarming Algorithms",
-      "Sliding Mode Control Systems",
-      "Power Electronics & Converters",
-      "Satellite Communication Systems"
-    ],
-    keySkills: [
-      "Embedded Systems (Raspberry Pi, Pixhawk)",
-      "MATLAB/Simulink & Ansys HFSS",
-      "Control Theory & Algorithm Development",
-      "Research & Technical Documentation"
-    ]
-  }
+    vision: "To be at the forefront of aerospace innovation, developing sustainable and efficient solutions for the future of transportation and exploration.",
+    educationDesc: "My education at IIT Madras has provided me with a strong foundation in aerospace engineering, with a focus on aerodynamics, propulsion, and control systems. I have also pursued my interests in electronics and computer science, which I believe are essential for the future of the aerospace industry.",
+    innovation: "I am passionate about innovation and am constantly exploring new ideas and technologies. I believe that the best way to solve complex problems is to think outside the box and to challenge the status quo.",
+    researchAreas: ["Drone Technology", "Control Systems", "Power Electronics", "Machine Learning"],
+    keySkills: ["Python", "C++", "MATLAB", "Simulink", "CATIA", "ANSYS"],
+  },
 };
+
+
+interface PortfolioContextType {
+  data: PortfolioData;
+  loading: boolean;
+  updatePersonalInfo: (info: PersonalInfo) => Promise<void>;
+  addProject: (project: Omit<Project, 'id'>) => Promise<void>;
+  updateProject: (project: Project) => Promise<void>;
+  updateProjects: (projects: Project[]) => Promise<void>;
+  removeProject: (id: string) => Promise<void>;
+  addExperience: (experience: Omit<Experience, 'id'>) => Promise<void>;
+  updateExperience: (experience: Experience) => Promise<void>;
+  removeExperience: (id: string) => Promise<void>;
+  addEducation: (education: Omit<Education, 'id'>) => Promise<void>;
+  updateEducation: (education: Education) => Promise<void>;
+  removeEducation: (id: string) => Promise<void>;
+  updateAboutSection: (about: AboutSection) => Promise<void>;
+  seedDatabase: () => Promise<void>;
+}
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
 export function PortfolioProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<PortfolioData>(() => {
-    const saved = localStorage.getItem('portfolioData');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // Merge with defaults to ensure new fields exist
-      return {
-        ...defaultData,
-        ...parsed,
-        aboutSection: parsed.aboutSection || defaultData.aboutSection
-      };
-    }
-    return defaultData;
-  });
+  const [data, setData] = useState<PortfolioData>(mockData);
+  const [loading, setLoading] = useState(true);
+  // Always use 'default' so all users (admin and visitors) read/write the same Firestore document
+  // This ensures changes made by admin are visible to everyone
+  const userId = 'default';
 
   useEffect(() => {
-    localStorage.setItem('portfolioData', JSON.stringify(data));
-  }, [data]);
+    const docRef = doc(db, "portfolios", userId);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        console.log("Data fetched from Firestore:", docSnap.data());
+        setData(docSnap.data() as PortfolioData);
+      } else {
+        // If no data, seed the database with mock data
+        setDoc(docRef, mockData);
+        setData(mockData);
+      }
+      setLoading(false);
+    });
 
-  const updatePersonalInfo = (info: PersonalInfo) => {
-    setData(prev => ({ ...prev, personalInfo: info }));
+    return () => unsubscribe();
+  }, [userId]);
+
+  const updateFirestore = async (updatedData: Partial<PortfolioData>) => {
+    try {
+      const docRef = doc(db, "portfolios", userId);
+      console.log("Updating Firestore with:", updatedData);
+      // Use setDoc with merge: true to create document if it doesn't exist AND merge with existing data
+      await setDoc(docRef, updatedData, { merge: true });
+      console.log("Firestore update successful");
+      // Don't update local state immediately - let onSnapshot handle it
+      // This ensures we're always in sync with Firestore
+    } catch (error) {
+      console.error("Error updating Firestore:", error);
+      throw error;
+    }
   };
 
-  const updateProjects = (projects: Project[]) => {
-    setData(prev => ({ ...prev, projects }));
+  const updatePersonalInfo = async (info: PersonalInfo) => {
+    await updateFirestore({ personalInfo: info });
   };
 
-  const updateExperience = (experience: Experience[]) => {
-    setData(prev => ({ ...prev, experience }));
+  const addProject = async (project: Omit<Project, 'id'>) => {
+    const newProject = { ...project, id: crypto.randomUUID() };
+    const updatedProjects = [...data.projects, newProject];
+    await updateFirestore({ projects: updatedProjects });
   };
 
-  const updateEducation = (education: Education[]) => {
-    setData(prev => ({ ...prev, education }));
+  const updateProject = async (project: Project) => {
+    const updatedProjects = data.projects.map((p) => (p.id === project.id ? project : p));
+    await updateFirestore({ projects: updatedProjects });
   };
 
-  const updateAboutSection = (aboutSection: AboutSection) => {
-    setData(prev => ({ ...prev, aboutSection }));
+  const updateProjects = async (projects: Project[]) => {
+    await updateFirestore({ projects });
   };
 
-  const addProject = (project: Omit<Project, 'id'>) => {
-    const newProject = { ...project, id: Date.now().toString() };
-    setData(prev => ({ ...prev, projects: [...prev.projects, newProject] }));
+  const removeProject = async (id: string) => {
+    const updatedProjects = data.projects.filter((p) => p.id !== id);
+    await updateFirestore({ projects: updatedProjects });
   };
 
-  const removeProject = (id: string) => {
-    setData(prev => ({ ...prev, projects: prev.projects.filter(p => p.id !== id) }));
+  const addExperience = async (experience: Omit<Experience, 'id'>) => {
+    const newExperience = { ...experience, id: crypto.randomUUID() };
+    const updatedExperience = [...data.experience, newExperience];
+    await updateFirestore({ experience: updatedExperience });
   };
 
-  const addExperience = (experience: Omit<Experience, 'id'>) => {
-    const newExperience = { ...experience, id: Date.now().toString() };
-    setData(prev => ({ ...prev, experience: [...prev.experience, newExperience] }));
+  const updateExperience = async (experience: Experience) => {
+    const updatedExperience = data.experience.map((e) => (e.id === experience.id ? experience : e));
+    await updateFirestore({ experience: updatedExperience });
   };
 
-  const removeExperience = (id: string) => {
-    setData(prev => ({ ...prev, experience: prev.experience.filter(e => e.id !== id) }));
+  const removeExperience = async (id: string) => {
+    const updatedExperience = data.experience.filter((e) => e.id !== id);
+    await updateFirestore({ experience: updatedExperience });
   };
 
-  const addEducation = (education: Omit<Education, 'id'>) => {
-    const newEducation = { ...education, id: Date.now().toString() };
-    setData(prev => ({ ...prev, education: [...prev.education, newEducation] }));
+  const addEducation = async (education: Omit<Education, 'id'>) => {
+    const newEducation = { ...education, id: crypto.randomUUID() };
+    const updatedEducation = [...data.education, newEducation];
+    await updateFirestore({ education: updatedEducation });
   };
 
-  const removeEducation = (id: string) => {
-    setData(prev => ({ ...prev, education: prev.education.filter(e => e.id !== id) }));
+  const updateEducation = async (education: Education) => {
+    const updatedEducation = data.education.map((e) => (e.id === education.id ? education : e));
+    await updateFirestore({ education: updatedEducation });
+  };
+
+  const removeEducation = async (id: string) => {
+    const updatedEducation = data.education.filter((e) => e.id !== id);
+    await updateFirestore({ education: updatedEducation });
+  };
+
+  const updateAboutSection = async (about: AboutSection) => {
+    await updateFirestore({ aboutSection: about });
+  };
+
+  const seedDatabase = async () => {
+    const docRef = doc(db, "portfolios", userId);
+    await setDoc(docRef, mockData);
   };
 
   return (
     <PortfolioContext.Provider value={{
       data,
+      loading,
       updatePersonalInfo,
-      updateProjects,
-      updateExperience,
-      updateEducation,
-      updateAboutSection,
       addProject,
+      updateProject,
+      updateProjects,
       removeProject,
       addExperience,
+      updateExperience,
       removeExperience,
       addEducation,
-      removeEducation
+      updateEducation,
+      removeEducation,
+      updateAboutSection,
+      seedDatabase
     }}>
       {children}
     </PortfolioContext.Provider>

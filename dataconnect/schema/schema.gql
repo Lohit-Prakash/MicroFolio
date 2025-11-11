@@ -1,0 +1,70 @@
+type User @table {
+  name: String!
+  email: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  bio: String
+  phone: String
+  LinkedInUrl: String
+  GitHubUrl: String
+  photoUrl: String
+}
+
+type Education @table {
+  user: User
+  degree: String!
+  institution: String!
+  startDate: Date!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  endDate: Date
+  major: String
+  minor: String
+  gpa: Float
+  description: String
+}
+
+type Experience @table {
+  user: User
+  title: String!
+  company: String!
+  startDate: Date!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  endDate: Date
+  location: String
+  description: String
+}
+
+type Project @table {
+  user: User
+  title: String!
+  description: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  technologiesUsed: [String]
+  demoUrl: String
+  repositoryUrl: String
+  imageUrl: String
+}
+
+type Research @table {
+  user: User
+  title: String!
+  abstract: String!
+  publicationDate: Date!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  journalOrConference: String
+  fullPaperUrl: String
+  presentationUrl: String
+}
+
+type Skill @table {
+  user: User
+  name: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  category: String
+  proficiencyLevel: String
+}

@@ -1,21 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { usePortfolio } from "@/contexts/PortfolioDataContext";
+import FileOrLinkInput from "./FileOrLinkInput";
+import { uploadDataUrlToGCS } from "@/lib/gcs-upload";
 import { useToast } from "@/hooks/use-toast";
+import { useUploadProgress } from "@/hooks/use-upload-progress";
+import UploadProgressBar from "./UploadProgressBar";
 import { Upload, User, Linkedin, Github, Youtube, Instagram, Twitter, GraduationCap, FileText } from "lucide-react";
 
 const EditProfile = () => {
   const { data, updatePersonalInfo } = usePortfolio();
   const { toast } = useToast();
   const [formData, setFormData] = useState(data.personalInfo);
+  const { uploadProgress, startUpload, updateProgress, setError, completeUpload, resetProgress } = useUploadProgress();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    setFormData(data.personalInfo);
+  }, [data.personalInfo]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updatePersonalInfo(formData);
+    await updatePersonalInfo(formData);
     toast({
       title: "Profile Updated",
       description: "Your profile has been updated successfully!",
@@ -29,16 +38,44 @@ const EditProfile = () => {
     });
   };
 
-  const handleProfilePictureUpload = () => {
-    toast({
-      title: "Feature Coming Soon",
-      description: "Profile picture upload requires Supabase integration for file storage.",
-      variant: "destructive",
-    });
+  const handleProfilePictureAdd = async (value: string) => {
+    resetProgress();
+    
+    try {
+      let finalUrl = value;
+      if (value.startsWith("data:")) {
+        startUpload(1);
+        updateProgress("Profile Image", 0, 1);
+        finalUrl = await uploadDataUrlToGCS("profiles", value);
+        updateProgress("Profile Image", 1, 1);
+      }
+      setFormData({ ...formData, profileImage: finalUrl });
+      await updatePersonalInfo({ ...formData, profileImage: finalUrl });
+      completeUpload();
+      toast({ title: "Profile image added" });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
+      toast({
+        title: "Upload Error",
+        description: `Failed to upload profile image: ${errorMessage}`,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <div>
+      <UploadProgressBar
+        isVisible={uploadProgress.isUploading || !!uploadProgress.error}
+        progress={uploadProgress.progress}
+        currentFile={uploadProgress.currentFile}
+        totalFiles={uploadProgress.totalFiles}
+        completedFiles={uploadProgress.completedFiles}
+        error={uploadProgress.error}
+        onClose={resetProgress}
+      />
+      <Card className="max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="w-5 h-5" />
@@ -50,19 +87,24 @@ const EditProfile = () => {
         <div className="space-y-2">
           <Label>Profile Picture</Label>
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 p-1 shadow-lg">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 p-0.5 shadow-lg">
               <div className="w-full h-full rounded-full bg-gradient-to-br from-background/95 to-muted/50 flex items-center justify-center text-xl font-bold text-primary">
-                {formData.name.split(' ').map(n => n[0]).join('')}
+                {!formData.profileImage ? (
+                  formData.name.split(' ').map(n => n[0]).join('')
+                ) : (
+                  <img src={formData.profileImage} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                )}
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={handleProfilePictureUpload}
-              className="flex items-center gap-2"
-            >
-              <Upload className="w-4 h-4" />
-              Upload Picture
-            </Button>
+            <div className="flex-1">
+              <FileOrLinkInput
+                label="image"
+                placeholder="Image URL or choose a file"
+                accept="image/*"
+                onAdd={handleProfilePictureAdd}
+                buttonText="Set"
+              />
+            </div>
           </div>
         </div>
 
@@ -257,6 +299,7 @@ const EditProfile = () => {
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 };
 

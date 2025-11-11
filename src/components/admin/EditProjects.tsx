@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { usePortfolio, Project } from "@/contexts/PortfolioDataContext";
 import { useToast } from "@/hooks/use-toast";
+import FileOrLinkInput from "./FileOrLinkInput";
+import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
+import { useUploadProgress } from "@/hooks/use-upload-progress";
+import UploadProgressBar from "./UploadProgressBar";
 import { Plus, Trash2, X, FolderOpen } from "lucide-react";
 
 const EditProjects = () => {
@@ -16,6 +20,8 @@ const EditProjects = () => {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTech, setNewTech] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { uploadProgress, startUpload, updateProgress, setError, completeUpload, resetProgress } = useUploadProgress();
 
   const [newProject, setNewProject] = useState({
     title: "",
@@ -33,46 +39,132 @@ const EditProjects = () => {
   const [newImage, setNewImage] = useState("");
   const [newPdf, setNewPdf] = useState("");
 
-  const handleAddProject = (e: React.FormEvent) => {
-    e.preventDefault();
-    addProject(newProject);
-    setNewProject({
-      title: "",
-      period: "",
-      institution: "",
-      type: "Research Project",
-      description: "",
-      technologies: [],
-      status: "Completed",
-      images: [],
-      pdfs: [],
-      githubLink: "",
-      liveLink: ""
-    });
-    setShowAddForm(false);
-    toast({
-      title: "Project Added",
-      description: "New project has been successfully added.",
-    });
-  };
+  useEffect(() => {
+    if (editingProject) {
+      const updatedProject = data.projects.find(p => p.id === editingProject.id);
+      if (updatedProject) {
+        setEditingProject(updatedProject);
+      }
+    }
+  }, [data.projects, editingProject]);
 
-  const handleUpdateProject = (e: React.FormEvent) => {
+  const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProject) return;
+    resetProgress();
     
-    const updatedProjects = data.projects.map(p => 
-      p.id === editingProject.id ? editingProject : p
-    );
-    updateProjects(updatedProjects);
-    setEditingProject(null);
-    toast({
-      title: "Project Updated",
-      description: "Project has been successfully updated.",
-    });
+    try {
+      const totalFiles = newProject.images.length + newProject.pdfs.length;
+      if (totalFiles > 0) {
+        startUpload(totalFiles);
+      }
+      
+      const images = await normalizeMediaUrlsToGCS(
+        "projects/images", 
+        newProject.images,
+        (currentFile, completed, total) => updateProgress(currentFile, completed, total)
+      );
+      const pdfs = await normalizeMediaUrlsToGCS(
+        "projects/pdfs", 
+        newProject.pdfs,
+        (currentFile, completed, total) => updateProgress(currentFile, completed, total)
+      );
+      
+      const projectWithUrls = {
+        ...newProject,
+        images,
+        pdfs
+      };
+      
+      await addProject(projectWithUrls);
+      setNewProject({
+        title: "",
+        period: "",
+        institution: "",
+        type: "Research Project",
+        description: "",
+        technologies: [],
+        status: "Completed",
+        images: [],
+        pdfs: [],
+        githubLink: "",
+        liveLink: ""
+      });
+      setShowAddForm(false);
+      
+      completeUpload();
+      
+      toast({
+        title: "Project Added",
+        description: "New project has been successfully added.",
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
+      toast({
+        title: "Upload Error",
+        description: `Failed to upload files: ${errorMessage}`,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleRemoveProject = (id: string) => {
-    removeProject(id);
+  const handleUpdateProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProject || isUpdating) return;
+    
+    setIsUpdating(true);
+    resetProgress();
+    
+    try {
+      const totalFiles = (editingProject.images?.length || 0) + (editingProject.pdfs?.length || 0);
+      if (totalFiles > 0) {
+        startUpload(totalFiles);
+      }
+      
+      const images = await normalizeMediaUrlsToGCS(
+        "projects/images", 
+        editingProject.images || [],
+        (currentFile, completed, total) => updateProgress(currentFile, completed, total)
+      );
+      
+      const pdfs = await normalizeMediaUrlsToGCS(
+        "projects/pdfs", 
+        editingProject.pdfs || [],
+        (currentFile, completed, total) => updateProgress(currentFile, completed, total)
+      );
+      
+      const updatedProject = {
+        ...editingProject,
+        images,
+        pdfs
+      };
+      
+      await updateProjects(data.projects.map(p => 
+        p.id === editingProject.id ? updatedProject : p
+      ));
+      
+      setEditingProject(null);
+      completeUpload();
+      
+      toast({
+        title: "Project Updated",
+        description: "Project has been successfully updated.",
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
+      toast({
+        title: "Upload Error",
+        description: `Failed to upload files: ${errorMessage}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleRemoveProject = async (id: string) => {
+    await removeProject(id);
     toast({
       title: "Project Removed",
       description: "Project has been successfully removed.",
@@ -174,6 +266,15 @@ const EditProjects = () => {
 
   return (
     <div className="space-responsive animate-fade-up">
+      <UploadProgressBar
+        isVisible={uploadProgress.isUploading || !!uploadProgress.error}
+        progress={uploadProgress.progress}
+        currentFile={uploadProgress.currentFile}
+        totalFiles={uploadProgress.totalFiles}
+        completedFiles={uploadProgress.completedFiles}
+        error={uploadProgress.error}
+        onClose={resetProgress}
+      />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-primary/10">
@@ -314,18 +415,17 @@ const EditProjects = () => {
 
               <div className="space-y-3">
                 <Label className="text-sm font-semibold text-foreground/80">Project Images</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    value={newImage}
-                    onChange={(e) => setNewImage(e.target.value)}
-                    placeholder="Add image URL"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImage(false))}
-                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
-                  />
-                  <Button type="button" onClick={() => addImage(false)} variant="outline" className="hover-scale transition-spring">
-                    Add
-                  </Button>
-                </div>
+                <FileOrLinkInput
+                  label="image"
+                  placeholder="Add image URL or choose a file"
+                  accept="image/*"
+                  onAdd={(value) => {
+                    setNewProject({
+                      ...newProject,
+                      images: [...newProject.images, value]
+                    });
+                  }}
+                />
                 <div className="flex flex-wrap gap-2 mt-3">
                   {newProject.images.map((img, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
@@ -338,18 +438,17 @@ const EditProjects = () => {
 
               <div className="space-y-3">
                 <Label className="text-sm font-semibold text-foreground/80">Project PDFs</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    value={newPdf}
-                    onChange={(e) => setNewPdf(e.target.value)}
-                    placeholder="Add PDF URL"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addPdf(false))}
-                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
-                  />
-                  <Button type="button" onClick={() => addPdf(false)} variant="outline" className="hover-scale transition-spring">
-                    Add
-                  </Button>
-                </div>
+                <FileOrLinkInput
+                  label="PDF"
+                  placeholder="Add PDF URL or choose a file"
+                  accept="application/pdf"
+                  onAdd={(value) => {
+                    setNewProject({
+                      ...newProject,
+                      pdfs: [...newProject.pdfs, value]
+                    });
+                  }}
+                />
                 <div className="flex flex-wrap gap-2 mt-3">
                   {newProject.pdfs.map((pdf, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
@@ -404,7 +503,7 @@ const EditProjects = () => {
             <CardHeader className="pb-4">
               <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
                     <div className="p-1.5 rounded-lg bg-primary/10">
                       <FolderOpen className="w-4 h-4 text-primary" />
                     </div>
@@ -415,17 +514,17 @@ const EditProjects = () => {
                       {project.status}
                     </Badge>
                   </div>
-                  <CardTitle className="text-lg sm:text-xl leading-tight mb-1">{project.title}</CardTitle>
-                  <CardDescription className="text-sm">
+                  <CardTitle className="text-lg sm:text-xl leading-tight mb-1 break-words">{project.title}</CardTitle>
+                  <CardDescription className="text-sm break-words">
                     {project.institution} • {project.period}
                   </CardDescription>
                 </div>
-                <div className="flex gap-2 flex-shrink-0">
+                <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setEditingProject(project)}
-                    className="hover-scale transition-spring"
+                    className="hover-scale transition-spring w-full sm:w-auto"
                   >
                     Edit
                   </Button>
@@ -433,7 +532,7 @@ const EditProjects = () => {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleRemoveProject(project.id)}
-                    className="hover-scale transition-spring"
+                    className="hover-scale transition-spring w-full sm:w-auto"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -441,7 +540,7 @@ const EditProjects = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">{project.description}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed break-words">{project.description}</p>
               <div className="flex flex-wrap gap-2">
                 {project.technologies.map((tech, idx) => (
                   <Badge key={idx} variant="outline" className="text-xs hover-scale transition-spring cursor-default">
@@ -456,21 +555,22 @@ const EditProjects = () => {
 
       {/* Edit Project Form */}
       {editingProject && (
-        <Card className="card-modern animate-scale-up mt-8">
-          <CardHeader className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <FolderOpen className="w-5 h-5 text-blue-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in px-2">
+          <Card className="shadow-2xl rounded-2xl w-full max-w-lg mx-auto animate-in slide-in-from-top-8 card-modern animate-scale-up mt-8 overflow-y-auto max-h-screen p-2 sm:p-6">
+            <CardHeader className="space-y-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="p-2 rounded-lg bg-blue-500/10">
+                  <FolderOpen className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Edit Project</CardTitle>
+                  <CardDescription>Update project information</CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-xl">Edit Project</CardTitle>
-                <CardDescription>Update project information</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleUpdateProject} className="space-responsive">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateProject} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-3">
                   <Label htmlFor="edit-title" className="text-sm font-semibold text-foreground/80">Project Title</Label>
                   <Input
@@ -531,18 +631,18 @@ const EditProjects = () => {
 
               <div className="space-y-3">
                 <Label className="text-sm font-semibold text-foreground/80">Project Images</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    value={newImage}
-                    onChange={(e) => setNewImage(e.target.value)}
-                    placeholder="Add image URL"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImage(true))}
-                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
-                  />
-                  <Button type="button" onClick={() => addImage(true)} variant="outline" className="hover-scale transition-spring">
-                    Add
-                  </Button>
-                </div>
+                <FileOrLinkInput
+                  label="image"
+                  placeholder="Add image URL or choose a file"
+                  accept="image/*"
+                  onAdd={(value) => {
+                    if (!editingProject) return;
+                    setEditingProject({
+                      ...editingProject,
+                      images: [...(editingProject.images || []), value]
+                    });
+                  }}
+                />
                 <div className="flex flex-wrap gap-2 mt-3">
                   {(editingProject.images || []).map((img, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
@@ -555,18 +655,18 @@ const EditProjects = () => {
 
               <div className="space-y-3">
                 <Label className="text-sm font-semibold text-foreground/80">Project PDFs</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    value={newPdf}
-                    onChange={(e) => setNewPdf(e.target.value)}
-                    placeholder="Add PDF URL"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addPdf(true))}
-                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
-                  />
-                  <Button type="button" onClick={() => addPdf(true)} variant="outline" className="hover-scale transition-spring">
-                    Add
-                  </Button>
-                </div>
+                <FileOrLinkInput
+                  label="PDF"
+                  placeholder="Add PDF URL or choose a file"
+                  accept="application/pdf"
+                  onAdd={(value) => {
+                    if (!editingProject) return;
+                    setEditingProject({
+                      ...editingProject,
+                      pdfs: [...(editingProject.pdfs || []), value]
+                    });
+                  }}
+                />
                 <div className="flex flex-wrap gap-2 mt-3">
                   {(editingProject.pdfs || []).map((pdf, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
@@ -601,17 +701,28 @@ const EditProjects = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button type="submit" className="hover-lift transition-spring shadow-medium hover:shadow-strong">
+                <Button 
+                  type="submit" 
+                  disabled={isUpdating}
+                  className="hover-lift transition-spring shadow-medium hover:shadow-strong"
+                >
                   <FolderOpen className="w-4 h-4 mr-2" />
-                  Update Project
+                  {isUpdating ? "Updating..." : "Update Project"}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setEditingProject(null)} className="hover-scale transition-spring">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  disabled={isUpdating}
+                  onClick={() => setEditingProject(null)} 
+                  className="hover-scale transition-spring"
+                >
                   Cancel
                 </Button>
               </div>
             </form>
           </CardContent>
         </Card>
+        </div>
       )}
     </div>
   );

@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { usePortfolio, Experience } from "@/contexts/PortfolioDataContext";
 import { useToast } from "@/hooks/use-toast";
+import FileOrLinkInput from "./FileOrLinkInput";
+import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
 import { Plus, Trash2, X, Briefcase } from "lucide-react";
 
 const EditExperience = () => {
@@ -27,39 +29,75 @@ const EditExperience = () => {
     pdfs: [] as string[]
   });
 
-  const handleAddExperience = (e: React.FormEvent) => {
+  const handleAddExperience = async (e: React.FormEvent) => {
     e.preventDefault();
-    addExperience(newExperience);
-    setNewExperience({
-      title: "",
-      company: "",
-      period: "",
-      location: "",
-      description: "",
-      achievements: [],
-      images: [],
-      pdfs: []
-    });
-    setShowAddForm(false);
-    toast({
-      title: "Experience Added",
-      description: "New experience has been successfully added.",
-    });
+    try {
+      // Upload any data URLs to Firebase Storage
+      const images = await normalizeMediaUrlsToGCS("experience/images", newExperience.images);
+      const pdfs = await normalizeMediaUrlsToGCS("experience/pdfs", newExperience.pdfs);
+      
+      const experienceWithUrls = {
+        ...newExperience,
+        images,
+        pdfs
+      };
+      
+      addExperience(experienceWithUrls);
+      setNewExperience({
+        title: "",
+        company: "",
+        period: "",
+        location: "",
+        description: "",
+        achievements: [],
+        images: [],
+        pdfs: []
+      });
+      setShowAddForm(false);
+      toast({
+        title: "Experience Added",
+        description: "New experience has been successfully added.",
+      });
+    } catch (error) {
+      toast({
+        title: "Upload Error",
+        description: "Failed to upload files. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleUpdateExperience = (e: React.FormEvent) => {
+  const handleUpdateExperience = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingExperience) return;
     
-    const updatedExperience = data.experience.map(exp => 
-      exp.id === editingExperience.id ? editingExperience : exp
-    );
-    updateExperience(updatedExperience);
-    setEditingExperience(null);
-    toast({
-      title: "Experience Updated",
-      description: "Experience has been successfully updated.",
-    });
+    try {
+      // Upload any data URLs to Firebase Storage
+      const images = await normalizeMediaUrlsToGCS("experience/images", editingExperience.images || []);
+      const pdfs = await normalizeMediaUrlsToGCS("experience/pdfs", editingExperience.pdfs || []);
+      
+      const updatedExperience = {
+        ...editingExperience,
+        images,
+        pdfs
+      };
+      
+      const updatedExperiences = data.experience.map(exp => 
+        exp.id === editingExperience.id ? updatedExperience : exp
+      );
+      updateExperience(updatedExperiences);
+      setEditingExperience(null);
+      toast({
+        title: "Experience Updated",
+        description: "Experience has been successfully updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Upload Error",
+        description: "Failed to upload files. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRemoveExperience = (id: string) => {
@@ -284,32 +322,16 @@ const EditExperience = () => {
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-semibold text-foreground/80">Images (URLs)</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    placeholder="Add image URL"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addImage(false, e.currentTarget.value);
-                        e.currentTarget.value = '';
-                      }
-                    }}
-                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
-                  />
-                  <Button 
-                    type="button" 
-                    onClick={(e) => {
-                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                      addImage(false, input.value);
-                      input.value = '';
-                    }} 
-                    variant="outline" 
-                    className="hover-scale transition-spring"
-                  >
-                    Add
-                  </Button>
-                </div>
+                <Label className="text-sm font-semibold text-foreground/80">Images</Label>
+                <FileOrLinkInput
+                  label="image"
+                  placeholder="Add image URL or choose a file"
+                  accept="image/*"
+                  onAdd={(value) => setNewExperience({
+                    ...newExperience,
+                    images: [...newExperience.images, value]
+                  })}
+                />
                 <div className="space-y-2 mt-3">
                   {newExperience.images.map((image, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
@@ -321,32 +343,16 @@ const EditExperience = () => {
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-semibold text-foreground/80">PDFs (URLs)</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    placeholder="Add PDF URL"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addPdf(false, e.currentTarget.value);
-                        e.currentTarget.value = '';
-                      }
-                    }}
-                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
-                  />
-                  <Button 
-                    type="button" 
-                    onClick={(e) => {
-                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                      addPdf(false, input.value);
-                      input.value = '';
-                    }} 
-                    variant="outline" 
-                    className="hover-scale transition-spring"
-                  >
-                    Add
-                  </Button>
-                </div>
+                <Label className="text-sm font-semibold text-foreground/80">PDFs</Label>
+                <FileOrLinkInput
+                  label="PDF"
+                  placeholder="Add PDF URL or choose a file"
+                  accept="application/pdf"
+                  onAdd={(value) => setNewExperience({
+                    ...newExperience,
+                    pdfs: [...newExperience.pdfs, value]
+                  })}
+                />
                 <div className="space-y-2 mt-3">
                   {newExperience.pdfs.map((pdf, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
@@ -433,20 +439,21 @@ const EditExperience = () => {
 
       {/* Edit Experience Form */}
       {editingExperience && (
-        <Card className="card-modern animate-scale-up mt-8">
-          <CardHeader className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <Briefcase className="w-5 h-5 text-blue-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in">
+          <Card className="shadow-2xl rounded-2xl w-full max-w-2xl mx-auto animate-in slide-in-from-top-8 card-modern animate-scale-up mt-8">
+            <CardHeader className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-500/10">
+                  <Briefcase className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Edit Experience</CardTitle>
+                  <CardDescription>Update experience information</CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-xl">Edit Experience</CardTitle>
-                <CardDescription>Update experience information</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleUpdateExperience} className="space-responsive">
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateExperience} className="space-responsive">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label htmlFor="edit-title" className="text-sm font-semibold text-foreground/80">Job Title</Label>
@@ -531,32 +538,19 @@ const EditExperience = () => {
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-semibold text-foreground/80">Images (URLs)</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    placeholder="Add image URL"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addImage(true, e.currentTarget.value);
-                        e.currentTarget.value = '';
-                      }
-                    }}
-                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
-                  />
-                  <Button 
-                    type="button" 
-                    onClick={(e) => {
-                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                      addImage(true, input.value);
-                      input.value = '';
-                    }} 
-                    variant="outline" 
-                    className="hover-scale transition-spring"
-                  >
-                    Add
-                  </Button>
-                </div>
+                <Label className="text-sm font-semibold text-foreground/80">Images</Label>
+                <FileOrLinkInput
+                  label="image"
+                  placeholder="Add image URL or choose a file"
+                  accept="image/*"
+                  onAdd={(value) => {
+                    if (!editingExperience) return;
+                    setEditingExperience({
+                      ...editingExperience,
+                      images: [...(editingExperience.images || []), value]
+                    });
+                  }}
+                />
                 <div className="space-y-2 mt-3">
                   {(editingExperience.images || []).map((image, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
@@ -568,32 +562,19 @@ const EditExperience = () => {
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-semibold text-foreground/80">PDFs (URLs)</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    placeholder="Add PDF URL"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addPdf(true, e.currentTarget.value);
-                        e.currentTarget.value = '';
-                      }
-                    }}
-                    className="flex-1 transition-all duration-300 focus:shadow-glow hover:shadow-medium"
-                  />
-                  <Button 
-                    type="button" 
-                    onClick={(e) => {
-                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                      addPdf(true, input.value);
-                      input.value = '';
-                    }} 
-                    variant="outline" 
-                    className="hover-scale transition-spring"
-                  >
-                    Add
-                  </Button>
-                </div>
+                <Label className="text-sm font-semibold text-foreground/80">PDFs</Label>
+                <FileOrLinkInput
+                  label="PDF"
+                  placeholder="Add PDF URL or choose a file"
+                  accept="application/pdf"
+                  onAdd={(value) => {
+                    if (!editingExperience) return;
+                    setEditingExperience({
+                      ...editingExperience,
+                      pdfs: [...(editingExperience.pdfs || []), value]
+                    });
+                  }}
+                />
                 <div className="space-y-2 mt-3">
                   {(editingExperience.pdfs || []).map((pdf, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover-lift transition-spring group">
@@ -616,6 +597,7 @@ const EditExperience = () => {
             </form>
           </CardContent>
         </Card>
+        </div>
       )}
     </div>
   );
