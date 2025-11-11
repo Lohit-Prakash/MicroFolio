@@ -19,6 +19,8 @@ const EditProjects = () => {
   const { toast } = useToast();
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  // Local clone used while editing to avoid mutating context data directly
+  const [editingValues, setEditingValues] = useState<Project | null>(null);
   const [newTech, setNewTech] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const { uploadProgress, startUpload, updateProgress, setError, completeUpload, resetProgress } = useUploadProgress();
@@ -38,6 +40,21 @@ const EditProjects = () => {
   });
   const [newImage, setNewImage] = useState("");
   const [newPdf, setNewPdf] = useState("");
+
+  // When an editingProject is selected, populate a safe local copy for editing
+  useEffect(() => {
+    if (editingProject) {
+      const source = data.projects.find((p) => p.id === editingProject.id) || editingProject;
+      setEditingValues({
+        ...source,
+        technologies: [...(source.technologies || [])],
+        images: [...(source.images || [])],
+        pdfs: [...(source.pdfs || [])]
+      });
+    } else {
+      setEditingValues(null);
+    }
+  }, [editingProject, data.projects]);
 
 
   const handleAddProject = async (e: React.FormEvent) => {
@@ -102,63 +119,47 @@ const EditProjects = () => {
 
   const handleUpdateProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProject || isUpdating) return;
-    
+    if (!editingValues || isUpdating) return;
+
     setIsUpdating(true);
     resetProgress();
-    
+
     try {
-      console.log("🔵 Starting project update:", editingProject);
-      
-      const totalFiles = (editingProject.images?.length || 0) + (editingProject.pdfs?.length || 0);
-      if (totalFiles > 0) {
-        startUpload(totalFiles);
-      }
-      
+      // Count files (data URLs may be present) and start upload progress
+      const totalFiles = (editingValues.images?.length || 0) + (editingValues.pdfs?.length || 0);
+      if (totalFiles > 0) startUpload(totalFiles);
+
+      // Normalize/upload any data URLs
       const images = await normalizeMediaUrlsToGCS(
-        "projects/images", 
-        editingProject.images || [],
+        "projects/images",
+        editingValues.images || [],
         (currentFile, completed, total) => updateProgress(currentFile, completed, total)
       );
-      
+
       const pdfs = await normalizeMediaUrlsToGCS(
-        "projects/pdfs", 
-        editingProject.pdfs || [],
+        "projects/pdfs",
+        editingValues.pdfs || [],
         (currentFile, completed, total) => updateProgress(currentFile, completed, total)
       );
-      
-      const updatedProject = {
-        ...editingProject,
+
+      const updatedProject: Project = {
+        ...editingValues,
         images,
         pdfs
       };
-      
-      console.log("✅ Updated project object:", updatedProject);
-      console.log("📤 Calling updateProject context function");
-      
-      // Use the context function to update - it handles Firestore writes
+
       await updateProject(updatedProject);
-      
-      console.log("✨ Context update successful");
-      
-      setIsUpdating(false);
+
+      toast({ title: "Project Updated", description: "Project has been successfully updated." });
+
+      // clear edit UI
+      setEditingValues(null);
       setEditingProject(null);
       completeUpload();
-      
-      toast({
-        title: "Project Updated",
-        description: "Project has been successfully updated.",
-      });
-    } catch (error) {
-      console.error("Error updating project:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
       setError(errorMessage);
-      setIsUpdating(false);
-      toast({
-        title: "Upload Error",
-        description: `Failed to upload files: ${errorMessage}`,
-        variant: "destructive",
-      });
+      toast({ title: "Upload Error", description: `Failed to update project: ${errorMessage}`, variant: "destructive" });
     } finally {
       setIsUpdating(false);
     }
@@ -175,10 +176,10 @@ const EditProjects = () => {
   const addTechnology = (isEditing: boolean) => {
     if (!newTech.trim()) return;
     
-    if (isEditing && editingProject) {
-      setEditingProject({
-        ...editingProject,
-        technologies: [...editingProject.technologies, newTech.trim()]
+    if (isEditing && editingValues) {
+      setEditingValues({
+        ...editingValues,
+        technologies: [...(editingValues.technologies || []), newTech.trim()]
       });
     } else {
       setNewProject({
@@ -190,10 +191,10 @@ const EditProjects = () => {
   };
 
   const removeTechnology = (index: number, isEditing: boolean) => {
-    if (isEditing && editingProject) {
-      setEditingProject({
-        ...editingProject,
-        technologies: editingProject.technologies.filter((_, i) => i !== index)
+    if (isEditing && editingValues) {
+      setEditingValues({
+        ...editingValues,
+        technologies: (editingValues.technologies || []).filter((_, i) => i !== index)
       });
     } else {
       setNewProject({
@@ -206,10 +207,10 @@ const EditProjects = () => {
   const addImage = (isEditing: boolean) => {
     if (!newImage.trim()) return;
     
-    if (isEditing && editingProject) {
-      setEditingProject({
-        ...editingProject,
-        images: [...(editingProject.images || []), newImage.trim()]
+    if (isEditing && editingValues) {
+      setEditingValues({
+        ...editingValues,
+        images: [...(editingValues.images || []), newImage.trim()]
       });
     } else {
       setNewProject({
@@ -221,10 +222,10 @@ const EditProjects = () => {
   };
 
   const removeImage = (index: number, isEditing: boolean) => {
-    if (isEditing && editingProject) {
-      setEditingProject({
-        ...editingProject,
-        images: (editingProject.images || []).filter((_, i) => i !== index)
+    if (isEditing && editingValues) {
+      setEditingValues({
+        ...editingValues,
+        images: (editingValues.images || []).filter((_, i) => i !== index)
       });
     } else {
       setNewProject({
@@ -237,10 +238,10 @@ const EditProjects = () => {
   const addPdf = (isEditing: boolean) => {
     if (!newPdf.trim()) return;
     
-    if (isEditing && editingProject) {
-      setEditingProject({
-        ...editingProject,
-        pdfs: [...(editingProject.pdfs || []), newPdf.trim()]
+    if (isEditing && editingValues) {
+      setEditingValues({
+        ...editingValues,
+        pdfs: [...(editingValues.pdfs || []), newPdf.trim()]
       });
     } else {
       setNewProject({
@@ -252,10 +253,10 @@ const EditProjects = () => {
   };
 
   const removePdf = (index: number, isEditing: boolean) => {
-    if (isEditing && editingProject) {
-      setEditingProject({
-        ...editingProject,
-        pdfs: (editingProject.pdfs || []).filter((_, i) => i !== index)
+    if (isEditing && editingValues) {
+      setEditingValues({
+        ...editingValues,
+        pdfs: (editingValues.pdfs || []).filter((_, i) => i !== index)
       });
     } else {
       setNewProject({
@@ -578,8 +579,8 @@ const EditProjects = () => {
                   <Label htmlFor="edit-title" className="text-sm font-semibold text-foreground/80">Project Title</Label>
                   <Input
                     id="edit-title"
-                    value={editingProject.title}
-                    onChange={(e) => setEditingProject({...editingProject, title: e.target.value})}
+                    value={editingValues?.title ?? ""}
+                    onChange={(e) => editingValues && setEditingValues({...editingValues, title: e.target.value})}
                     required
                     className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
                   />
@@ -588,8 +589,8 @@ const EditProjects = () => {
                   <Label htmlFor="edit-period" className="text-sm font-semibold text-foreground/80">Time Period</Label>
                   <Input
                     id="edit-period"
-                    value={editingProject.period}
-                    onChange={(e) => setEditingProject({...editingProject, period: e.target.value})}
+                    value={editingValues?.period ?? ""}
+                    onChange={(e) => editingValues && setEditingValues({...editingValues, period: e.target.value})}
                     required
                     className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
                   />
@@ -601,15 +602,15 @@ const EditProjects = () => {
                   <Label htmlFor="edit-institution" className="text-sm font-semibold text-foreground/80">Institution</Label>
                   <Input
                     id="edit-institution"
-                    value={editingProject.institution}
-                    onChange={(e) => setEditingProject({...editingProject, institution: e.target.value})}
+                    value={editingValues?.institution ?? ""}
+                    onChange={(e) => editingValues && setEditingValues({...editingValues, institution: e.target.value})}
                     required
                     className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
                   />
                 </div>
                 <div className="space-y-3">
                   <Label htmlFor="edit-type" className="text-sm font-semibold text-foreground/80">Project Type</Label>
-                  <Select value={editingProject.type} onValueChange={(value) => setEditingProject({...editingProject, type: value})}>
+                  <Select value={editingValues?.type ?? "Research Project"} onValueChange={(value) => editingValues && setEditingValues({...editingValues, type: value})}>
                     <SelectTrigger className="transition-all duration-300 focus:shadow-glow hover:shadow-medium">
                       <SelectValue />
                     </SelectTrigger>
@@ -625,7 +626,7 @@ const EditProjects = () => {
 
               <div className="space-y-3">
                 <Label htmlFor="edit-status" className="text-sm font-semibold text-foreground/80">Status</Label>
-                <Select value={editingProject.status} onValueChange={(value) => setEditingProject({...editingProject, status: value})}>
+                <Select value={editingValues?.status ?? "Completed"} onValueChange={(value) => editingValues && setEditingValues({...editingValues, status: value})}>
                   <SelectTrigger className="transition-all duration-300 focus:shadow-glow hover:shadow-medium">
                     <SelectValue />
                   </SelectTrigger>
@@ -641,8 +642,8 @@ const EditProjects = () => {
                 <Label htmlFor="edit-description" className="text-sm font-semibold text-foreground/80">Description</Label>
                 <Textarea
                   id="edit-description"
-                  value={editingProject.description}
-                  onChange={(e) => setEditingProject({...editingProject, description: e.target.value})}
+                  value={editingValues?.description ?? ""}
+                  onChange={(e) => editingValues && setEditingValues({...editingValues, description: e.target.value})}
                   rows={4}
                   required
                   className="transition-all duration-300 focus:shadow-glow hover:shadow-medium resize-none"
@@ -664,7 +665,7 @@ const EditProjects = () => {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {editingProject.technologies.map((tech, index) => (
+                  {editingValues?.technologies.map((tech, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group">
                       {tech}
                       <X className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" onClick={() => removeTechnology(index, true)} />
@@ -680,15 +681,12 @@ const EditProjects = () => {
                   placeholder="Add image URL or choose a file"
                   accept="image/*"
                   onAdd={(value) => {
-                    if (!editingProject) return;
-                    setEditingProject({
-                      ...editingProject,
-                      images: [...(editingProject.images || []), value]
-                    });
+                    if (!editingValues) return;
+                    setEditingValues({ ...editingValues, images: [...(editingValues.images || []), value] });
                   }}
                 />
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {(editingProject.images || []).map((img, index) => (
+                  {(editingValues?.images || []).map((img, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
                       <span className="truncate">{img}</span>
                       <X className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={() => removeImage(index, true)} />
@@ -704,15 +702,12 @@ const EditProjects = () => {
                   placeholder="Add PDF URL or choose a file"
                   accept="application/pdf"
                   onAdd={(value) => {
-                    if (!editingProject) return;
-                    setEditingProject({
-                      ...editingProject,
-                      pdfs: [...(editingProject.pdfs || []), value]
-                    });
+                    if (!editingValues) return;
+                    setEditingValues({ ...editingValues, pdfs: [...(editingValues.pdfs || []), value] });
                   }}
                 />
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {(editingProject.pdfs || []).map((pdf, index) => (
+                  {(editingValues?.pdfs || []).map((pdf, index) => (
                     <Badge key={index} variant="outline" className="flex items-center gap-2 px-3 py-1 hover-scale transition-spring cursor-pointer group max-w-[200px]">
                       <span className="truncate">{pdf}</span>
                       <X className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={() => removePdf(index, true)} />
@@ -726,8 +721,8 @@ const EditProjects = () => {
                   <Label htmlFor="edit-githubLink" className="text-sm font-semibold text-foreground/80">GitHub Link</Label>
                   <Input
                     id="edit-githubLink"
-                    value={editingProject.githubLink || ''}
-                    onChange={(e) => setEditingProject({...editingProject, githubLink: e.target.value})}
+                    value={editingValues?.githubLink ?? ''}
+                    onChange={(e) => editingValues && setEditingValues({...editingValues, githubLink: e.target.value})}
                     placeholder="https://github.com/..."
                     className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
                   />
@@ -736,8 +731,8 @@ const EditProjects = () => {
                   <Label htmlFor="edit-liveLink" className="text-sm font-semibold text-foreground/80">Live Demo Link</Label>
                   <Input
                     id="edit-liveLink"
-                    value={editingProject.liveLink || ''}
-                    onChange={(e) => setEditingProject({...editingProject, liveLink: e.target.value})}
+                    value={editingValues?.liveLink ?? ''}
+                    onChange={(e) => editingValues && setEditingValues({...editingValues, liveLink: e.target.value})}
                     placeholder="https://..."
                     className="transition-all duration-300 focus:shadow-glow hover:shadow-medium"
                   />
@@ -757,7 +752,7 @@ const EditProjects = () => {
                   type="button" 
                   variant="outline" 
                   disabled={isUpdating}
-                  onClick={() => setEditingProject(null)} 
+                  onClick={() => { setEditingProject(null); setEditingValues(null); }} 
                   className="hover-scale transition-spring"
                 >
                   Cancel
