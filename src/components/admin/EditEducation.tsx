@@ -9,12 +9,10 @@ import { usePortfolio, Education } from "@/contexts/PortfolioDataContext";
 import FileOrLinkInput from "./FileOrLinkInput";
 import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
 import { GraduationCap, Plus, Edit2, Trash2, X, Image, FileText } from "lucide-react";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 const EditEducation = () => {
   const { toast } = useToast();
-  const { data, updateEducation } = usePortfolio();
+  const { data, updateEducation, addEducation, removeEducation } = usePortfolio();
   
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingEducation, setEditingEducation] = useState<Education | null>(null);
@@ -48,20 +46,19 @@ const EditEducation = () => {
       const images = await normalizeMediaUrlsToGCS("education/images", newEducation.images);
       const pdfs = await normalizeMediaUrlsToGCS("education/pdfs", newEducation.pdfs);
       
-      const education: Education = {
-        id: Date.now().toString(),
+      const education: Omit<Education, 'id'> = {
         ...newEducation,
         images,
         pdfs
       };
       
-      const updatedEducations = [...data.education, education];
-      console.log("Updating Firestore with educations:", updatedEducations);
+      console.log("✅ Education object prepared:", education);
+      console.log("📤 Calling addEducation context function");
       
-      const docRef = doc(db, "portfolios", "default");
-      await setDoc(docRef, { education: updatedEducations }, { merge: true });
+      // Use context function to add education
+      await addEducation(education);
       
-      console.log("Firestore update successful");
+      console.log("✨ Context add successful");
       
       setNewEducation({
         degree: "",
@@ -107,15 +104,13 @@ const EditEducation = () => {
         pdfs
       };
 
-      const updatedEducations = data.education.map(edu => 
-        edu.id === editingEducation.id ? updatedEducation : edu
-      );
+      console.log("✅ Updated education object:", updatedEducation);
+      console.log("📤 Calling updateEducation context function");
       
-      const docRef = doc(db, "portfolios", "default");
-      await setDoc(docRef, { education: updatedEducations }, { merge: true });
+      // Use context function to update education
+      await updateEducation(updatedEducation);
       
-      // Update local state in PortfolioDataContext
-      updateEducation(updatedEducation);
+      console.log("✨ Context update successful");
       
       setEditingEducation(null);
       
@@ -135,9 +130,13 @@ const EditEducation = () => {
 
   const handleRemoveEducation = async (id: string) => {
     try {
-      const updatedEducations = data.education.filter(edu => edu.id !== id);
-      const docRef = doc(db, "portfolios", "default");
-      await setDoc(docRef, { education: updatedEducations }, { merge: true });
+      console.log("🗑️ Removing education with ID:", id);
+      console.log("📤 Calling removeEducation context function");
+      
+      // Use context function to remove education
+      await removeEducation(id);
+      
+      console.log("✨ Context remove successful");
       
       toast({
         title: "Education Removed",

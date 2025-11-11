@@ -13,11 +13,9 @@ import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
 import { useUploadProgress } from "@/hooks/use-upload-progress";
 import UploadProgressBar from "./UploadProgressBar";
 import { Plus, Trash2, X, FolderOpen } from "lucide-react";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 const EditProjects = () => {
-  const { data, updateProjects, addProject, removeProject } = usePortfolio();
+  const { data, updateProject, addProject, removeProject } = usePortfolio();
   const { toast } = useToast();
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -118,7 +116,7 @@ const EditProjects = () => {
     resetProgress();
     
     try {
-      console.log("Starting project update:", editingProject);
+      console.log("🔵 Starting project update:", editingProject);
       
       const totalFiles = (editingProject.images?.length || 0) + (editingProject.pdfs?.length || 0);
       if (totalFiles > 0) {
@@ -143,22 +141,15 @@ const EditProjects = () => {
         pdfs
       };
       
-      // Update the entire projects array
-      const updatedProjects = data.projects.map(p => 
-        p.id === editingProject.id ? updatedProject : p
-      );
+      console.log("✅ Updated project object:", updatedProject);
+      console.log("📤 Calling updateProject context function");
       
-      console.log("Updating Firestore with projects:", updatedProjects);
+      // Use the context function to update - it handles Firestore writes
+      await updateProject(updatedProject);
       
-      // Directly write to Firestore to ensure persistence
-      const docRef = doc(db, "portfolios", "default");
-      await setDoc(docRef, { projects: updatedProjects }, { merge: true });
+      console.log("✨ Context update successful");
       
-      // Update local state in PortfolioDataContext
-      updateProjects(updatedProject);
-      
-      console.log("Firestore update successful");
-      
+      setIsUpdating(false);
       setEditingProject(null);
       completeUpload();
       
@@ -170,6 +161,7 @@ const EditProjects = () => {
       console.error("Error updating project:", error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setError(errorMessage);
+      setIsUpdating(false);
       toast({
         title: "Upload Error",
         description: `Failed to upload files: ${errorMessage}`,
