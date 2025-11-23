@@ -6,7 +6,7 @@ extend type Education {
   """
   ✨ Implicit foreign key field based on `Education`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
   """
-  userId: UUID @fdc_generated(from: "Education.user", purpose: IMPLICIT_REF_FIELD)
+  userId: UUID! @fdc_generated(from: "Education.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type Experience {
   """
@@ -16,7 +16,7 @@ extend type Experience {
   """
   ✨ Implicit foreign key field based on `Experience`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
   """
-  userId: UUID @fdc_generated(from: "Experience.user", purpose: IMPLICIT_REF_FIELD)
+  userId: UUID! @fdc_generated(from: "Experience.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type Project {
   """
@@ -26,7 +26,7 @@ extend type Project {
   """
   ✨ Implicit foreign key field based on `Project`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
   """
-  userId: UUID @fdc_generated(from: "Project.user", purpose: IMPLICIT_REF_FIELD)
+  userId: UUID! @fdc_generated(from: "Project.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type Research {
   """
@@ -36,7 +36,7 @@ extend type Research {
   """
   ✨ Implicit foreign key field based on `Research`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
   """
-  userId: UUID @fdc_generated(from: "Research.user", purpose: IMPLICIT_REF_FIELD)
+  userId: UUID! @fdc_generated(from: "Research.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type Skill {
   """
@@ -46,7 +46,7 @@ extend type Skill {
   """
   ✨ Implicit foreign key field based on `Skill`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
   """
-  userId: UUID @fdc_generated(from: "Skill.user", purpose: IMPLICIT_REF_FIELD)
+  userId: UUID! @fdc_generated(from: "Skill.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type User {
   """

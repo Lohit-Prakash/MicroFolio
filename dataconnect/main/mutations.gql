@@ -1,21 +1,29 @@
-mutation updateUser($userId: String!, $name: String, $email: String, $bio: String, $phone: String, $LinkedInUrl: String, $GitHubUrl: String, $photoUrl: String) {
-  updateUser(
-    id: $userId
-    input: { name: $name, email: $email, bio: $bio, phone: $phone, LinkedInUrl: $LinkedInUrl, GitHubUrl: $GitHubUrl, photoUrl: $photoUrl }
+mutation createUser($name: String!, $email: String!) {
+  createUser(
+    input: { name: $name, email: $email }
   ) {
     id
   }
 }
 
-mutation addEducation($userId: String!, $degree: String!, $institution: String!, $startDate: Date!, $endDate: Date, $major: String, $minor: String, $gpa: Float, $description: String) {
-  addEducation(
+mutation updateUser($userId: UUID!, $name: String, $email: String, $bio: String, $phone: String, $linkedInUrl: String, $githubUrl: String, $photoUrl: String) {
+  updateUser(
+    id: $userId
+    input: { name: $name, email: $email, bio: $bio, phone: $phone, linkedInUrl: $linkedInUrl, githubUrl: $githubUrl, photoUrl: $photoUrl }
+  ) {
+    id
+  }
+}
+
+mutation createEducation($userId: UUID!, $degree: String!, $institution: String!, $startDate: Date!, $endDate: Date, $major: String, $minor: String, $gpa: Float, $description: String) {
+  createEducation(
     input: { userId: $userId, degree: $degree, institution: $institution, startDate: $startDate, endDate: $endDate, major: $major, minor: $minor, gpa: $gpa, description: $description }
   ) {
     id
   }
 }
 
-mutation updateEducation($educationId: String!, $degree: String, $institution: String, $startDate: Date, $endDate: Date, $major: String, $minor: String, $gpa: Float, $description: String) {
+mutation updateEducation($educationId: UUID!, $degree: String, $institution: String, $startDate: Date, $endDate: Date, $major: String, $minor: String, $gpa: Float, $description: String) {
   updateEducation(
     id: $educationId
     input: { degree: $degree, institution: $institution, startDate: $startDate, endDate: $endDate, major: $major, minor: $minor, gpa: $gpa, description: $description }
@@ -24,21 +32,21 @@ mutation updateEducation($educationId: String!, $degree: String, $institution: S
   }
 }
 
-mutation deleteEducation($educationId: String!) {
+mutation deleteEducation($educationId: UUID!) {
   deleteEducation(id: $educationId) {
     id
   }
 }
 
-mutation addExperience($userId: String!, $title: String!, $company: String!, $startDate: Date!, $endDate: Date, $location: String, $description: String) {
-  addExperience(
+mutation createExperience($userId: UUID!, $title: String!, $company: String!, $startDate: Date!, $endDate: Date, $location: String, $description: String) {
+  createExperience(
     input: { userId: $userId, title: $title, company: $company, startDate: $startDate, endDate: $endDate, location: $location, description: $description }
   ) {
     id
   }
 }
 
-mutation updateExperience($experienceId: String!, $title: String, $company: String, $startDate: Date, $endDate: Date, $location: String, $description: String) {
+mutation updateExperience($experienceId: UUID!, $title: String, $company: String, $startDate: Date, $endDate: Date, $location: String, $description: String) {
   updateExperience(
     id: $experienceId
     input: { title: $title, company: $company, startDate: $startDate, endDate: $endDate, location: $location, description: $description }
@@ -47,21 +55,21 @@ mutation updateExperience($experienceId: String!, $title: String, $company: Stri
   }
 }
 
-mutation deleteExperience($experienceId: String!) {
+mutation deleteExperience($experienceId: UUID!) {
   deleteExperience(id: $experienceId) {
     id
   }
 }
 
-mutation addProject($userId: String!, $title: String!, $description: String!, $technologiesUsed: [String], $demoUrl: String, $repositoryUrl: String, $imageUrl: String) {
-  addProject(
+mutation createProject($userId: UUID!, $title: String!, $description: String!, $technologiesUsed: [String], $demoUrl: String, $repositoryUrl: String, $imageUrl: String) {
+  createProject(
     input: { userId: $userId, title: $title, description: $description, technologiesUsed: $technologiesUsed, demoUrl: $demoUrl, repositoryUrl: $repositoryUrl, imageUrl: $imageUrl }
-  ) {.
+  ) {
     id
   }
 }
 
-mutation updateProject($projectId: String!, $title: String, $description: String, $technologiesUsed: [String], $demoUrl: String, $repositoryUrl: String, $imageUrl: String) {
+mutation updateProject($projectId: UUID!, $title: String, $description: String, $technologiesUsed: [String], $demoUrl: String, $repositoryUrl: String, $imageUrl: String) {
   updateProject(
     id: $projectId
     input: { title: $title, description: $description, technologiesUsed: $technologiesUsed, demoUrl: $demoUrl, repositoryUrl: $repositoryUrl, imageUrl: $imageUrl }
@@ -70,7 +78,7 @@ mutation updateProject($projectId: String!, $title: String, $description: String
   }
 }
 
-mutation deleteProject($projectId: String!) {
+mutation deleteProject($projectId: UUID!) {
   deleteProject(id: $projectId) {
     id
   }

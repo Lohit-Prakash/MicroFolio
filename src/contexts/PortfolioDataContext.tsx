@@ -142,12 +142,18 @@ interface PortfolioContextType {
   updateProject: (project: Project) => Promise<void>;
   updateProjects: (projects: Project[]) => Promise<void>;
   removeProject: (id: string) => Promise<void>;
+  updateProjectsOrder: (orderedIds: string[]) => Promise<void>; // New reorder function
+
   addExperience: (experience: Omit<Experience, 'id'>) => Promise<void>;
   updateExperience: (experience: Experience) => Promise<void>;
   removeExperience: (id: string) => Promise<void>;
+  updateExperienceOrder: (orderedIds: string[]) => Promise<void>; // New reorder function
+
   addEducation: (education: Omit<Education, 'id'>) => Promise<void>;
   updateEducation: (education: Education) => Promise<void>;
   removeEducation: (id: string) => Promise<void>;
+  updateEducationOrder: (orderedIds: string[]) => Promise<void>; // New reorder function
+
   updateAboutSection: (about: AboutSection) => Promise<void>;
   seedDatabase: () => Promise<void>;
 }
@@ -248,8 +254,23 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   };
 
   const removeEducation = async (id: string) => {
-    const updatedEducation = data.education.filter((e) => e.id !== id);
+    const updatedEducation = data.education.filter((edu) => edu.id !== id);
     await updateFirestore({ education: updatedEducation });
+  };
+
+  const updateProjectsOrder = async (orderedIds: string[]) => {
+    const orderedProjects = orderedIds.map(id => data.projects.find(proj => proj.id === id)).filter(Boolean) as Project[];
+    await updateFirestore({ projects: orderedProjects });
+  };
+
+  const updateExperienceOrder = async (orderedIds: string[]) => {
+    const orderedExperience = orderedIds.map(id => data.experience.find(exp => exp.id === id)).filter(Boolean) as Experience[];
+    await updateFirestore({ experience: orderedExperience });
+  };
+
+  const updateEducationOrder = async (orderedIds: string[]) => {
+    const orderedEducation = orderedIds.map(id => data.education.find(edu => edu.id === id)).filter(Boolean) as Education[];
+    await updateFirestore({ education: orderedEducation });
   };
 
   const updateAboutSection = async (about: AboutSection) => {
@@ -270,12 +291,15 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       updateProject,
       updateProjects,
       removeProject,
+      updateProjectsOrder,
       addExperience,
       updateExperience,
       removeExperience,
+      updateExperienceOrder,
       addEducation,
       updateEducation,
       removeEducation,
+      updateEducationOrder,
       updateAboutSection,
       seedDatabase
     }}>

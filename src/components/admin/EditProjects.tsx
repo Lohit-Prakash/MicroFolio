@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,10 +13,10 @@ import FileOrLinkInput from "./FileOrLinkInput";
 import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
 import { useUploadProgress } from "@/hooks/use-upload-progress";
 import UploadProgressBar from "./UploadProgressBar";
-import { Plus, Trash2, X, FolderOpen } from "lucide-react";
+import { Plus, Trash2, X, FolderOpen, Edit2 } from "lucide-react";
 
 const EditProjects = () => {
-  const { data, updateProject, addProject, removeProject } = usePortfolio();
+  const { data, updateProject, addProject, removeProject, updateProjectsOrder } = usePortfolio();
   const { toast } = useToast();
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -266,6 +267,24 @@ const EditProjects = () => {
     }
   };
 
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items = Array.from(data.projects);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update the order in the context and Firestore
+    await updateProjectsOrder(items.map(item => item.id));
+
+    toast({
+      title: "Project Reordered",
+      description: "Project entries have been reordered successfully.",
+    });
+  };
+
   return (
     <div className="space-responsive animate-fade-up">
       <UploadProgressBar
@@ -499,61 +518,82 @@ const EditProjects = () => {
       )}
 
       {/* Existing Projects */}
-      <div className="grid gap-6">
-        {data.projects.map((project, index) => (
-          <Card key={project.id} className="card-modern hover-lift animate-slide-in" style={{ animationDelay: `${index * 0.1}s` }}>
-            <CardHeader className="pb-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <div className="p-1.5 rounded-lg bg-primary/10">
-                      <FolderOpen className="w-4 h-4 text-primary" />
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {project.type}
-                    </Badge>
-                    <Badge variant={project.status === 'Completed' ? 'default' : project.status === 'Ongoing' ? 'secondary' : 'destructive'} className="text-xs">
-                      {project.status}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-lg sm:text-xl leading-tight mb-1 break-words">{project.title}</CardTitle>
-                  <CardDescription className="text-sm break-words">
-                    {project.institution} • {project.period}
-                  </CardDescription>
-                </div>
-                <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditingProject(project)}
-                    className="hover-scale transition-spring w-full sm:w-auto"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleRemoveProject(project.id)}
-                    className="hover-scale transition-spring w-full sm:w-auto"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed break-words">{project.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {project.technologies.map((tech, idx) => (
-                  <Badge key={idx} variant="outline" className="text-xs hover-scale transition-spring cursor-default">
-                    {tech}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="projects-list">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {data.projects.length === 0 ? (
+                <p className="text-center text-muted-foreground col-span-full">No projects yet. Add one above!</p>
+              ) : (
+                data.projects.map((project, index) => (
+                  <Draggable key={project.id} draggableId={project.id} index={index}>
+                    {(provided) => (
+                      <Card
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="card-modern hover-lift animate-slide-in"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <CardHeader className="pb-4">
+                          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <div className="p-1.5 rounded-lg bg-primary/10">
+                                  <FolderOpen className="w-4 h-4 text-primary" />
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {project.type}
+                                </Badge>
+                                <Badge variant={project.status === 'Completed' ? 'default' : project.status === 'Ongoing' ? 'secondary' : 'destructive'} className="text-xs">
+                                  {project.status}
+                                </Badge>
+                              </div>
+                              <CardTitle className="text-lg sm:text-xl leading-tight mb-1 break-words">{project.title}</CardTitle>
+                              <CardDescription className="text-sm break-words">
+                                {project.institution} • {project.period}
+                              </CardDescription>
+                            </div>
+                            <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setEditingProject(project)}
+                                className="hover-scale transition-spring"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleRemoveProject(project.id)}
+                                className="hover-scale transition-spring"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <p className="text-sm text-muted-foreground leading-relaxed break-words">{project.description}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {project.technologies.map((tech, idx) => (
+                              <Badge key={idx} variant="outline" className="text-xs hover-scale transition-spring cursor-default">
+                                {tech}
+                              </Badge>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </Draggable>
+                )))
+              }
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       {/* Edit Project Form */}
       {editingProject && (

@@ -10,4 +10,4 @@ schema:
         instanceId: "timeless-persona-site-fdc"
         # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
         # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
-connectorDirs: ["./example"]
+connectorDirs: ["./main"]

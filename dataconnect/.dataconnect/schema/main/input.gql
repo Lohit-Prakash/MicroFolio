@@ -47,15 +47,15 @@ input Education_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `Education`.`userId` of type `UUID`
+  ✨ Generated from Field `Education`.`userId` of type `UUID!`
   """
   userId: UUID
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Education`.`userId` of type `UUID`)
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Education`.`userId` of type `UUID!`)
   """
   userId_expr: UUID_Expr
   """
-  ✨ Generated from Field `Education`.`user` of type `User`
+  ✨ Generated from Field `Education`.`user` of type `User!`
   """
   user: User_Key
   """
@@ -196,11 +196,11 @@ input Education_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `Education`.`userId` of type `UUID`
+  ✨ Generated from Field `Education`.`userId` of type `UUID!`
   """
   userId: UUID_Filter
   """
-  ✨ Generated from Field `Education`.`user` of type `User`
+  ✨ Generated from Field `Education`.`user` of type `User!`
   """
   user: User_Filter
   """
@@ -413,11 +413,11 @@ input Education_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `Education`.`userId` of type `UUID`
+  ✨ Generated from Field `Education`.`userId` of type `UUID!`
   """
   userId: OrderDirection
   """
-  ✨ Generated from Field `Education`.`user` of type `User`
+  ✨ Generated from Field `Education`.`user` of type `User!`
   """
   user: User_Order
   """
@@ -574,15 +574,15 @@ input Experience_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `Experience`.`userId` of type `UUID`
+  ✨ Generated from Field `Experience`.`userId` of type `UUID!`
   """
   userId: UUID
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Experience`.`userId` of type `UUID`)
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Experience`.`userId` of type `UUID!`)
   """
   userId_expr: UUID_Expr
   """
-  ✨ Generated from Field `Experience`.`user` of type `User`
+  ✨ Generated from Field `Experience`.`user` of type `User!`
   """
   user: User_Key
   """
@@ -703,11 +703,11 @@ input Experience_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `Experience`.`userId` of type `UUID`
+  ✨ Generated from Field `Experience`.`userId` of type `UUID!`
   """
   userId: UUID_Filter
   """
-  ✨ Generated from Field `Experience`.`user` of type `User`
+  ✨ Generated from Field `Experience`.`user` of type `User!`
   """
   user: User_Filter
   """
@@ -888,11 +888,11 @@ input Experience_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `Experience`.`userId` of type `UUID`
+  ✨ Generated from Field `Experience`.`userId` of type `UUID!`
   """
   userId: OrderDirection
   """
-  ✨ Generated from Field `Experience`.`user` of type `User`
+  ✨ Generated from Field `Experience`.`user` of type `User!`
   """
   user: User_Order
   """
@@ -1017,15 +1017,15 @@ input Project_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `Project`.`userId` of type `UUID`
+  ✨ Generated from Field `Project`.`userId` of type `UUID!`
   """
   userId: UUID
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Project`.`userId` of type `UUID`)
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Project`.`userId` of type `UUID!`)
   """
   userId_expr: UUID_Expr
   """
-  ✨ Generated from Field `Project`.`user` of type `User`
+  ✨ Generated from Field `Project`.`user` of type `User!`
   """
   user: User_Key
   """
@@ -1130,11 +1130,11 @@ input Project_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `Project`.`userId` of type `UUID`
+  ✨ Generated from Field `Project`.`userId` of type `UUID!`
   """
   userId: UUID_Filter
   """
-  ✨ Generated from Field `Project`.`user` of type `User`
+  ✨ Generated from Field `Project`.`user` of type `User!`
   """
   user: User_Filter
   """
@@ -1295,11 +1295,11 @@ input Project_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `Project`.`userId` of type `UUID`
+  ✨ Generated from Field `Project`.`userId` of type `UUID!`
   """
   userId: OrderDirection
   """
-  ✨ Generated from Field `Project`.`user` of type `User`
+  ✨ Generated from Field `Project`.`user` of type `User!`
   """
   user: User_Order
   """
@@ -1400,15 +1400,15 @@ input Research_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `Research`.`userId` of type `UUID`
+  ✨ Generated from Field `Research`.`userId` of type `UUID!`
   """
   userId: UUID
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Research`.`userId` of type `UUID`)
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Research`.`userId` of type `UUID!`)
   """
   userId_expr: UUID_Expr
   """
-  ✨ Generated from Field `Research`.`user` of type `User`
+  ✨ Generated from Field `Research`.`user` of type `User!`
   """
   user: User_Key
   """
@@ -1521,11 +1521,11 @@ input Research_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `Research`.`userId` of type `UUID`
+  ✨ Generated from Field `Research`.`userId` of type `UUID!`
   """
   userId: UUID_Filter
   """
-  ✨ Generated from Field `Research`.`user` of type `User`
+  ✨ Generated from Field `Research`.`user` of type `User!`
   """
   user: User_Filter
   """
@@ -1698,11 +1698,11 @@ input Research_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `Research`.`userId` of type `UUID`
+  ✨ Generated from Field `Research`.`userId` of type `UUID!`
   """
   userId: OrderDirection
   """
-  ✨ Generated from Field `Research`.`user` of type `User`
+  ✨ Generated from Field `Research`.`user` of type `User!`
   """
   user: User_Order
   """
@@ -1819,15 +1819,15 @@ input Skill_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `Skill`.`userId` of type `UUID`
+  ✨ Generated from Field `Skill`.`userId` of type `UUID!`
   """
   userId: UUID
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Skill`.`userId` of type `UUID`)
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Skill`.`userId` of type `UUID!`)
   """
   userId_expr: UUID_Expr
   """
-  ✨ Generated from Field `Skill`.`user` of type `User`
+  ✨ Generated from Field `Skill`.`user` of type `User!`
   """
   user: User_Key
   """
@@ -1908,11 +1908,11 @@ input Skill_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `Skill`.`userId` of type `UUID`
+  ✨ Generated from Field `Skill`.`userId` of type `UUID!`
   """
   userId: UUID_Filter
   """
-  ✨ Generated from Field `Skill`.`user` of type `User`
+  ✨ Generated from Field `Skill`.`user` of type `User!`
   """
   user: User_Filter
   """
@@ -2053,11 +2053,11 @@ input Skill_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `Skill`.`userId` of type `UUID`
+  ✨ Generated from Field `Skill`.`userId` of type `UUID!`
   """
   userId: OrderDirection
   """
-  ✨ Generated from Field `Skill`.`user` of type `User`
+  ✨ Generated from Field `Skill`.`user` of type `User!`
   """
   user: User_Order
   """
@@ -2142,22 +2142,6 @@ input User_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `User`.`GitHubUrl` of type `String`
-  """
-  GitHubUrl: String
-  """
-  ✨ `_expr` server value variant of `GitHubUrl` (✨ Generated from Field `User`.`GitHubUrl` of type `String`)
-  """
-  GitHubUrl_expr: String_Expr
-  """
-  ✨ Generated from Field `User`.`LinkedInUrl` of type `String`
-  """
-  LinkedInUrl: String
-  """
-  ✨ `_expr` server value variant of `LinkedInUrl` (✨ Generated from Field `User`.`LinkedInUrl` of type `String`)
-  """
-  LinkedInUrl_expr: String_Expr
-  """
   ✨ Generated from Field `User`.`bio` of type `String`
   """
   bio: String
@@ -2189,6 +2173,22 @@ input User_Data {
   ✨ `_expr` server value variant of `email` (✨ Generated from Field `User`.`email` of type `String!`)
   """
   email_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`githubUrl` of type `String`
+  """
+  githubUrl: String
+  """
+  ✨ `_expr` server value variant of `githubUrl` (✨ Generated from Field `User`.`githubUrl` of type `String`)
+  """
+  githubUrl_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`linkedInUrl` of type `String`
+  """
+  linkedInUrl: String
+  """
+  ✨ `_expr` server value variant of `linkedInUrl` (✨ Generated from Field `User`.`linkedInUrl` of type `String`)
+  """
+  linkedInUrl_expr: String_Expr
   """
   ✨ Generated from Field `User`.`name` of type `String!`
   """
@@ -2251,14 +2251,6 @@ input User_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `User`.`GitHubUrl` of type `String`
-  """
-  GitHubUrl: String_Filter
-  """
-  ✨ Generated from Field `User`.`LinkedInUrl` of type `String`
-  """
-  LinkedInUrl: String_Filter
-  """
   ✨ Generated from Field `User`.`bio` of type `String`
   """
   bio: String_Filter
@@ -2270,6 +2262,14 @@ input User_Filter {
   ✨ Generated from Field `User`.`email` of type `String!`
   """
   email: String_Filter
+  """
+  ✨ Generated from Field `User`.`githubUrl` of type `String`
+  """
+  githubUrl: String_Filter
+  """
+  ✨ Generated from Field `User`.`linkedInUrl` of type `String`
+  """
+  linkedInUrl: String_Filter
   """
   ✨ Generated from Field `User`.`name` of type `String!`
   """
@@ -2345,14 +2345,6 @@ input User_Having {
   """
   _count: Int_Filter
   """
-  ✨ Generated from Field `User`.`GitHubUrl_count` of type `Int!`
-  """
-  GitHubUrl_count: Int_Filter
-  """
-  ✨ Generated from Field `User`.`LinkedInUrl_count` of type `Int!`
-  """
-  LinkedInUrl_count: Int_Filter
-  """
   ✨ Generated from Field `User`.`bio_count` of type `Int!`
   """
   bio_count: Int_Filter
@@ -2365,9 +2357,17 @@ input User_Having {
   """
   email_count: Int_Filter
   """
+  ✨ Generated from Field `User`.`githubUrl_count` of type `Int!`
+  """
+  githubUrl_count: Int_Filter
+  """
   ✨ Generated from Field `User`.`id_count` of type `Int!`
   """
   id_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`linkedInUrl_count` of type `Int!`
+  """
+  linkedInUrl_count: Int_Filter
   """
   ✨ Generated from Field `User`.`name_count` of type `Int!`
   """
@@ -2436,14 +2436,6 @@ input User_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `User`.`GitHubUrl` of type `String`
-  """
-  GitHubUrl: OrderDirection
-  """
-  ✨ Generated from Field `User`.`LinkedInUrl` of type `String`
-  """
-  LinkedInUrl: OrderDirection
-  """
   ✨ Generated from Field `User`.`bio` of type `String`
   """
   bio: OrderDirection
@@ -2455,6 +2447,14 @@ input User_Order {
   ✨ Generated from Field `User`.`email` of type `String!`
   """
   email: OrderDirection
+  """
+  ✨ Generated from Field `User`.`githubUrl` of type `String`
+  """
+  githubUrl: OrderDirection
+  """
+  ✨ Generated from Field `User`.`linkedInUrl` of type `String`
+  """
+  linkedInUrl: OrderDirection
   """
   ✨ Generated from Field `User`.`name` of type `String!`
   """
@@ -2476,14 +2476,6 @@ input User_Order {
   """
   _count: OrderDirection
   """
-  ✨ Generated from Field `User`.`GitHubUrl_count` of type `Int!`
-  """
-  GitHubUrl_count: OrderDirection
-  """
-  ✨ Generated from Field `User`.`LinkedInUrl_count` of type `Int!`
-  """
-  LinkedInUrl_count: OrderDirection
-  """
   ✨ Generated from Field `User`.`bio_count` of type `Int!`
   """
   bio_count: OrderDirection
@@ -2496,9 +2488,17 @@ input User_Order {
   """
   email_count: OrderDirection
   """
+  ✨ Generated from Field `User`.`githubUrl_count` of type `Int!`
+  """
+  githubUrl_count: OrderDirection
+  """
   ✨ Generated from Field `User`.`id_count` of type `Int!`
   """
   id_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`linkedInUrl_count` of type `Int!`
+  """
+  linkedInUrl_count: OrderDirection
   """
   ✨ Generated from Field `User`.`name_count` of type `Int!`
   """

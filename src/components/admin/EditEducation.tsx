@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +13,7 @@ import { GraduationCap, Plus, Edit2, Trash2, X, Image, FileText } from "lucide-r
 
 const EditEducation = () => {
   const { toast } = useToast();
-  const { data, updateEducation, addEducation, removeEducation } = usePortfolio();
+  const { data, updateEducation, addEducation, removeEducation, updateEducationOrder } = usePortfolio();
   
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingEducation, setEditingEducation] = useState<Education | null>(null);
@@ -276,6 +277,24 @@ const EditEducation = () => {
     }
   };
 
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items = Array.from(data.education);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update the order in the context and Firestore
+    await updateEducationOrder(items.map(item => item.id));
+
+    toast({
+      title: "Education Reordered",
+      description: "Education entries have been reordered successfully.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -462,267 +481,280 @@ const EditEducation = () => {
       )}
 
       {/* Education List */}
-      <div className="space-y-4">
-        {data.education.map((education) => (
-          <Card key={education.id}>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold">{education.degree}</h3>
-                  <p className="text-primary font-medium">{education.institution}</p>
-                  <p className="text-muted-foreground">{education.location} • {education.period}</p>
-                  <p className="text-sm text-muted-foreground mt-1">CGPA: {education.cgpa}</p>
-                  {education.specialization && (
-                    <p className="text-sm text-muted-foreground">Specialization: {education.specialization}</p>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="education-list">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+              {data.education.map((education, index) => (
+                <Draggable key={education.id} draggableId={education.id} index={index}>
+                  {(provided) => (
+                    <Card
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}>
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-xl font-semibold">{education.degree}</h3>
+                            <p className="text-primary font-medium">{education.institution}</p>
+                            <p className="text-muted-foreground">{education.location} • {education.period}</p>
+                            <p className="text-sm text-muted-foreground mt-1">CGPA: {education.cgpa}</p>
+                            {education.specialization && (
+                              <p className="text-sm text-muted-foreground">Specialization: {education.specialization}</p>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingEducation(education)}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleRemoveEducation(education.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        {education.description && (
+                          <p className="text-muted-foreground mb-4">{education.description}</p>
+                        )}
+                        
+                        {education.achievements && education.achievements.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="font-medium mb-2">Achievements</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {education.achievements.map((achievement, index) => (
+                                <Badge key={index} variant="secondary">
+                                  {achievement}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {education.relevantCourses && education.relevantCourses.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="font-medium mb-2">Relevant Courses</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {education.relevantCourses.map((course, index) => (
+                                <Badge key={index} variant="outline">
+                                  {course}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {education.images && education.images.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="font-medium mb-2 flex items-center gap-2">
+                              <Image className="w-4 h-4" />
+                              Images ({education.images.length})
+                            </h4>
+                          </div>
+                        )}
+
+                        {education.pdfs && education.pdfs.length > 0 && (
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center gap-2">
+                              <FileText className="w-4 h-4" />
+                              PDFs ({education.pdfs.length})
+                            </h4>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
                   )}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditingEducation(education)}
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleRemoveEducation(education.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              {education.description && (
-                <p className="text-muted-foreground mb-4">{education.description}</p>
-              )}
-              
-              {education.achievements && education.achievements.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="font-medium mb-2">Achievements</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {education.achievements.map((achievement, index) => (
-                      <Badge key={index} variant="secondary">
-                        {achievement}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {education.relevantCourses && education.relevantCourses.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="font-medium mb-2">Relevant Courses</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {education.relevantCourses.map((course, index) => (
-                      <Badge key={index} variant="outline">
-                        {course}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
-              {education.images && education.images.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="font-medium mb-2 flex items-center gap-2">
-                    <Image className="w-4 h-4" />
-                    Images ({education.images.length})
-                  </h4>
-                </div>
-              )}
-
-              {education.pdfs && education.pdfs.length > 0 && (
-                <div>
-                  <h4 className="font-medium mb-2 flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    PDFs ({education.pdfs.length})
-                  </h4>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Edit Education Modal/Form */}
       {editingEducation && (
-        // Backdrop is non-interactive; modal card remains interactive
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in pointer-events-none">
-          <Card className="pointer-events-auto shadow-2xl rounded-2xl w-full max-w-2xl mx-auto animate-in slide-in-from-top-8 border-primary">
+        <div>
+          {/* Edit Education Form */}
+          <Card>
             <CardHeader>
               <CardTitle>Edit Education</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleUpdateEducation} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  placeholder="Degree"
-                  value={editingEducation.degree}
-                  onChange={(e) => setEditingEducation({...editingEducation, degree: e.target.value})}
-                  required
-                />
-                <Input
-                  placeholder="Institution"
-                  value={editingEducation.institution}
-                  onChange={(e) => setEditingEducation({...editingEducation, institution: e.target.value})}
-                  required
-                />
-                <Input
-                  placeholder="Location"
-                  value={editingEducation.location}
-                  onChange={(e) => setEditingEducation({...editingEducation, location: e.target.value})}
-                  required
-                />
-                <Input
-                  placeholder="Period"
-                  value={editingEducation.period}
-                  onChange={(e) => setEditingEducation({...editingEducation, period: e.target.value})}
-                  required
-                />
-                <Input
-                  placeholder="CGPA"
-                  value={editingEducation.cgpa}
-                  onChange={(e) => setEditingEducation({...editingEducation, cgpa: e.target.value})}
-                  required
-                />
-                <Input
-                  placeholder="Specialization (optional)"
-                  value={editingEducation.specialization || ""}
-                  onChange={(e) => setEditingEducation({...editingEducation, specialization: e.target.value})}
-                />
-              </div>
-              
-              <Textarea
-                placeholder="Description"
-                value={editingEducation.description || ""}
-                onChange={(e) => setEditingEducation({...editingEducation, description: e.target.value})}
-              />
-
-              {/* Edit Achievements */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Achievements</label>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
-                    placeholder="Add achievement"
-                    value={newAchievement}
-                    onChange={(e) => setNewAchievement(e.target.value)}
+                    placeholder="Degree"
+                    value={editingEducation.degree}
+                    onChange={(e) => setEditingEducation({...editingEducation, degree: e.target.value})}
+                    required
                   />
-                  <Button type="button" onClick={() => addAchievement(true)}>
-                    Add
+                  <Input
+                    placeholder="Institution"
+                    value={editingEducation.institution}
+                    onChange={(e) => setEditingEducation({...editingEducation, institution: e.target.value})}
+                    required
+                  />
+                  <Input
+                    placeholder="Location"
+                    value={editingEducation.location}
+                    onChange={(e) => setEditingEducation({...editingEducation, location: e.target.value})}
+                    required
+                  />
+                  <Input
+                    placeholder="Period (e.g., 2020 - 2022)"
+                    value={editingEducation.period}
+                    onChange={(e) => setEditingEducation({...editingEducation, period: e.target.value})}
+                    required
+                  />
+                  <Input
+                    placeholder="CGPA"
+                    value={editingEducation.cgpa}
+                    onChange={(e) => setEditingEducation({...editingEducation, cgpa: e.target.value})}
+                    required
+                  />
+                  <Input
+                    placeholder="Specialization (optional)"
+                    value={editingEducation.specialization}
+                    onChange={(e) => setEditingEducation({...editingEducation, specialization: e.target.value})}
+                  />
+                </div>
+                
+                <Textarea
+                  placeholder="Description"
+                  value={editingEducation.description}
+                  onChange={(e) => setEditingEducation({...editingEducation, description: e.target.value})}
+                />
+
+                {/* Edit Achievements */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Achievements</label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add achievement"
+                      value={newAchievement}
+                      onChange={(e) => setNewAchievement(e.target.value)}
+                    />
+                    <Button type="button" onClick={() => addAchievement(true)}>
+                      Add
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {(editingEducation.achievements || []).map((achievement, index) => (
+                      <Badge key={index} variant="secondary" className="gap-1">
+                        {achievement}
+                        <X
+                          className="w-3 h-3 cursor-pointer"
+                          onClick={() => removeAchievement(index, true)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Edit Relevant Courses */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Relevant Courses</label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add course"
+                      value={newCourse}
+                      onChange={(e) => setNewCourse(e.target.value)}
+                    />
+                    <Button type="button" onClick={() => addCourse(true)}>
+                      Add
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {(editingEducation.relevantCourses || []).map((course, index) => (
+                      <Badge key={index} variant="outline" className="gap-1">
+                        {course}
+                        <X
+                          className="w-3 h-3 cursor-pointer"
+                          onClick={() => removeCourse(index, true)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Edit Images */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    Images
+                  </label>
+                  <FileOrLinkInput
+                    label="image"
+                    placeholder="Add image URL or choose a file"
+                    accept="image/*"
+                    onAdd={(value) => {
+                      if (!editingEducation) return;
+                      setEditingEducation({
+                        ...editingEducation,
+                        images: [...(editingEducation.images || []), value]
+                      });
+                    }}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {(editingEducation.images || []).map((image, index) => (
+                      <Badge key={index} variant="secondary" className="gap-1">
+                        Image {index + 1}
+                        <X
+                          className="w-3 h-3 cursor-pointer"
+                          onClick={() => removeImage(index, true)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Edit PDFs */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    PDFs
+                  </label>
+                  <FileOrLinkInput
+                    label="PDF"
+                    placeholder="Add PDF URL or choose a file"
+                    accept="application/pdf"
+                    onAdd={(value) => {
+                      if (!editingEducation) return;
+                      setEditingEducation({
+                        ...editingEducation,
+                        pdfs: [...(editingEducation.pdfs || []), value]
+                      });
+                    }}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {(editingEducation.pdfs || []).map((pdf, index) => (
+                      <Badge key={index} variant="secondary" className="gap-1">
+                        PDF {index + 1}
+                        <X
+                          className="w-3 h-3 cursor-pointer"
+                          onClick={() => removePdf(index, true)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="submit">Update Education</Button>
+                  <Button type="button" variant="outline" onClick={() => setEditingEducation(null)}>
+                    Cancel
                   </Button>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {(editingEducation.achievements || []).map((achievement, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
-                      {achievement}
-                      <X
-                        className="w-3 h-3 cursor-pointer"
-                        onClick={() => removeAchievement(index, true)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Edit Courses */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Relevant Courses</label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add course"
-                    value={newCourse}
-                    onChange={(e) => setNewCourse(e.target.value)}
-                  />
-                  <Button type="button" onClick={() => addCourse(true)}>
-                    Add
-                  </Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {(editingEducation.relevantCourses || []).map((course, index) => (
-                    <Badge key={index} variant="outline" className="gap-1">
-                      {course}
-                      <X
-                        className="w-3 h-3 cursor-pointer"
-                        onClick={() => removeCourse(index, true)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Edit Images */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Image className="w-4 h-4" />
-                  Images
-                </label>
-                <FileOrLinkInput
-                  label="image"
-                  placeholder="Add image URL or choose a file"
-                  accept="image/*"
-                  onAdd={(value) => {
-                    if (!editingEducation) return;
-                    setEditingEducation({
-                      ...editingEducation,
-                      images: [...(editingEducation.images || []), value]
-                    });
-                  }}
-                />
-                <div className="flex flex-wrap gap-2">
-                  {(editingEducation.images || []).map((image, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
-                      Image {index + 1}
-                      <X
-                        className="w-3 h-3 cursor-pointer"
-                        onClick={() => removeImage(index, true)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Edit PDFs */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  PDFs
-                </label>
-                <FileOrLinkInput
-                  label="PDF"
-                  placeholder="Add PDF URL or choose a file"
-                  accept="application/pdf"
-                  onAdd={(value) => {
-                    if (!editingEducation) return;
-                    setEditingEducation({
-                      ...editingEducation,
-                      pdfs: [...(editingEducation.pdfs || []), value]
-                    });
-                  }}
-                />
-                <div className="flex flex-wrap gap-2">
-                  {(editingEducation.pdfs || []).map((pdf, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
-                      PDF {index + 1}
-                      <X
-                        className="w-3 h-3 cursor-pointer"
-                        onClick={() => removePdf(index, true)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button type="submit">Update Education</Button>
-                <Button type="button" variant="outline" onClick={() => setEditingEducation(null)}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
