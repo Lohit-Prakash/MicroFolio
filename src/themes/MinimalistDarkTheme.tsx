@@ -19,34 +19,40 @@ const MinimalistDarkTheme = () => {
           border-bottom: 1px solid #fff;
         }
         .section-title {
-          font-size: 3rem;
+          font-size: 2rem;
           font-weight: 200;
           text-align: center;
-          margin-bottom: 4rem;
+          margin-bottom: 2rem;
           color: #fff;
         }
+        @media (min-width: 768px) {
+          .section-title {
+            font-size: 3rem;
+            margin-bottom: 4rem;
+          }
+        }
       `}</style>
-      <div className="minimalist-dark-theme max-w-3xl mx-auto px-8 py-24">
-        <div id="about" className="py-16 text-center">
+      <div className="minimalist-dark-theme max-w-3xl mx-auto px-4 py-8 md:px-8 md:py-16">
+        <section id="about" className="py-8 md:py-16 text-center">
           <h2 className="section-title">About</h2>
           <About />
-        </div>
-        <div id="education" className="py-16 text-center">
+        </section>
+        <section id="education" className="py-8 md:py-16 text-center">
           <h2 className="section-title">Education</h2>
           <Education />
-        </div>
-        <div id="experience" className="py-16 text-center">
+        </section>
+        <section id="experience" className="py-8 md:py-16 text-center">
           <h2 className="section-title">Experience</h2>
           <Experience />
-        </div>
-        <div id="projects" className="py-16 text-center">
+        </section>
+        <section id="projects" className="py-8 md:py-16 text-center">
           <h2 className="section-title">Projects</h2>
           <Projects />
-        </div>
-        <div id="contact" className="py-16 text-center">
+        </section>
+        <section id="contact" className="py-8 md:py-16 text-center">
           <h2 className="section-title">Contact</h2>
           <Contact />
-        </div>
+        </section>
       </div>
     </div>
   );

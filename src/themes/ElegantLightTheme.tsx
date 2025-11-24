@@ -7,62 +7,75 @@ import Contact from "@/components/Contact";
 const ElegantLightTheme = () => {
   return (
     <div className="bg-white text-gray-700 font-serif">
-      <style>{`
-        .elegant-light-theme .title {
+      <style jsx>{`
+        .title {
           font-family: 'Playfair Display', serif;
-          font-size: 4rem;
+          font-size: 2.5rem;
           font-weight: 700;
           text-align: center;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
           color: #333;
         }
-        .elegant-light-theme .subtitle {
+        .subtitle {
           font-family: 'Lato', sans-serif;
-          font-size: 1.5rem;
+          font-size: 1.2rem;
           font-weight: 300;
           text-align: center;
-          margin-bottom: 4rem;
+          margin-bottom: 3rem;
           color: #777;
         }
-        .elegant-light-theme .content-grid {
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-          gap: 4rem;
-          align-items: start;
+        .section-title {
+          font-size: 1.8rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
         }
-        .elegant-light-theme .sidebar {
-          border-right: 1px solid #ddd;
-          padding-right: 4rem;
+        @media (min-width: 768px) {
+          .title {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+          }
+          .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 4rem;
+          }
+          .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+          }
         }
       `}</style>
-      <div className="elegant-light-theme max-w-7xl mx-auto px-8 py-20">
-        <h1 className="title">Portfolio</h1>
-        <h2 className="subtitle">A Curated Collection of Work</h2>
-        <div className="content-grid">
-          <div className="sidebar">
-            <div id="about" className="py-8">
-              <h3 className="text-2xl font-bold mb-4">About</h3>
-              <About />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+        <header>
+          <h1 className="title">Portfolio</h1>
+          <h2 className="subtitle">A Curated Collection of Work</h2>
+        </header>
+        <div className="flex flex-wrap -mx-4">
+          <aside className="w-full md:w-1/3 px-4 mb-8 md:mb-0">
+            <div className="sticky top-8">
+              <section id="about" className="mb-8">
+                <h3 className="section-title">About</h3>
+                <About />
+              </section>
+              <section id="contact">
+                <h3 className="section-title">Contact</h3>
+                <Contact />
+              </section>
             </div>
-            <div id="contact" className="py-8">
-              <h3 className="text-2xl font-bold mb-4">Contact</h3>
-              <Contact />
-            </div>
-          </div>
-          <div>
-            <div id="education" className="py-8">
-              <h3 className="text-3xl font-bold mb-8 text-center">Education</h3>
+          </aside>
+          <main className="w-full md:w-2/3 px-4">
+            <section id="education" className="mb-12">
+              <h3 className="section-title text-center">Education</h3>
               <Education />
-            </div>
-            <div id="experience" className="py-8">
-              <h3 className="text-3xl font-bold mb-8 text-center">Experience</h3>
+            </section>
+            <section id="experience" className="mb-12">
+              <h3 className="section-title text-center">Experience</h3>
               <Experience />
-            </div>
-            <div id="projects" className="py-8">
-              <h3 className="text-3xl font-bold mb-8 text-center">Projects</h3>
+            </section>
+            <section id="projects">
+              <h3 className="section-title text-center">Projects</h3>
               <Projects />
-            </div>
-          </div>
+            </section>
+          </main>
         </div>
       </div>
     </div>

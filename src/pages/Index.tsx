@@ -23,6 +23,12 @@ import MinimalistDarkTheme from "@/themes/MinimalistDarkTheme";
 import FuturisticHolographicTheme from "@/themes/FuturisticHolographicTheme";
 import ElegantLightTheme from "@/themes/ElegantLightTheme";
 import BrutalistTheme from "@/themes/BrutalistTheme";
+import SleekModernTheme from "@/themes/SleekModernTheme";
+import GlassmorphismTheme from "@/themes/GlassmorphismTheme";
+import NeobrutalismTheme from "@/themes/NeobrutalismTheme";
+import MinimalistLightTheme from "@/themes/MinimalistLightTheme";
+import PlayfulCreativeTheme from "@/themes/PlayfulCreativeTheme";
+import CorporateCleanTheme from "@/themes/CorporateCleanTheme";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("about");
@@ -174,6 +180,18 @@ const Index = () => {
             return <ElegantLightTheme />;
           case "brutalist":
             return <BrutalistTheme />;
+          case "sleek-modern":
+            return <SleekModernTheme />;
+          case "glassmorphism":
+            return <GlassmorphismTheme />;
+          case "neobrutalism":
+            return <NeobrutalismTheme />;
+          case "minimalist-light":
+            return <MinimalistLightTheme />;
+          case "playful-creative":
+            return <PlayfulCreativeTheme />;
+          case "corporate-clean":
+            return <CorporateCleanTheme />;
           default:
             return <DefaultTheme />;
         }

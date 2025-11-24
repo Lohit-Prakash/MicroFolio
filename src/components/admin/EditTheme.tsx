@@ -16,6 +16,12 @@ const themes = [
   { id: "futuristic-holographic", name: "Futuristic Holographic" },
   { id: "elegant-light", name: "Elegant Light" },
   { id: "brutalist", name: "Brutalist" },
+  { id: "sleek-modern", name: "Sleek Modern" },
+  { id: "glassmorphism", name: "Glassmorphism" },
+  { id: "neobrutalism", name: "Neobrutalism" },
+  { id: "minimalist-light", name: "Minimalist Light" },
+  { id: "playful-creative", name: "Playful & Creative" },
+  { id: "corporate-clean", name: "Corporate Clean" },
 ];
 
 const EditTheme = () => {

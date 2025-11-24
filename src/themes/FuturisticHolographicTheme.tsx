@@ -10,13 +10,26 @@ const FuturisticHolographicTheme = () => {
       background: 'linear-gradient(45deg, #0d1a26, #203a43, #2c5364)',
       textShadow: '0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0ff',
     }}>
-      <style>{`
-        .holographic-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
-          padding: 2rem;
-        }
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <section id="about" className="holographic-panel">
+            <About />
+          </section>
+          <section id="education" className="holographic-panel">
+            <Education />
+          </section>
+          <section id="experience" className="holographic-panel">
+            <Experience />
+          </section>
+          <section id="projects" className="holographic-panel md:col-span-2 lg:col-span-3">
+            <Projects />
+          </section>
+          <section id="contact" className="holographic-panel">
+            <Contact />
+          </section>
+        </div>
+      </div>
+      <style jsx>{`
         .holographic-panel {
           background: rgba(0, 100, 150, 0.2);
           border: 1px solid rgba(0, 200, 255, 0.4);
@@ -31,23 +44,6 @@ const FuturisticHolographicTheme = () => {
           box-shadow: 0 0 30px rgba(0, 200, 255, 0.6);
         }
       `}</style>
-      <div className="holographic-grid">
-        <div id="about" className="holographic-panel">
-          <About />
-        </div>
-        <div id="education" className="holographic-panel">
-          <Education />
-        </div>
-        <div id="experience" className="holographic-panel">
-          <Experience />
-        </div>
-        <div id="projects" className="holographic-panel">
-          <Projects />
-        </div>
-        <div id="contact" className="holographic-panel">
-          <Contact />
-        </div>
-      </div>
     </div>
   );
 };
