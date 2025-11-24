@@ -60,6 +60,7 @@ export interface PersonalInfo {
   scholar?: string;
   resumeLink?: string;
   profileImage?: string;
+  theme?: string;
 }
 
 export interface Blog {
@@ -171,6 +172,7 @@ interface PortfolioContextType {
   updateBlogsOrder: (orderedIds: string[]) => Promise<void>;
 
   updateAboutSection: (about: AboutSection) => Promise<void>;
+  updateTheme: (theme: string) => Promise<void>;
   seedDatabase: () => Promise<void>;
 }
 
@@ -324,6 +326,10 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     await updateFirestore({ blogs: orderedBlogs });
   };
 
+  const updateTheme = async (theme: string) => {
+    await updateFirestore({ personalInfo: { ...data.personalInfo, theme } });
+  };
+
   return (
     <PortfolioContext.Provider value={{
       data,
@@ -347,6 +353,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       removeBlog,
       updateBlogsOrder,
       updateAboutSection,
+      updateTheme,
       seedDatabase
     }}>
       {children}

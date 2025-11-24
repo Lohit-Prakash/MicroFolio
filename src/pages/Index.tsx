@@ -10,10 +10,23 @@ import Contact from "@/components/Contact";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import SectionDivider from "@/components/SectionDivider";
 import { usePortfolio } from "@/contexts/PortfolioDataContext";
+import DefaultTheme from "@/themes/DefaultTheme";
+import DarkGlowTheme from "@/themes/DarkGlowTheme";
+import LightProfessionalTheme from "@/themes/LightProfessionalTheme";
+import NeonCyberpunkTheme from "@/themes/NeonCyberpunkTheme";
+import RetroClassicTheme from "@/themes/RetroClassicTheme";
+import MinimalistCleanTheme from "@/themes/MinimalistCleanTheme";
+import NatureInspiredTheme from "@/themes/NatureInspiredTheme";
+import RetroWaveTheme from "@/themes/RetroWaveTheme";
+import CyberpunkTheme from "@/themes/CyberpunkTheme";
+import MinimalistDarkTheme from "@/themes/MinimalistDarkTheme";
+import FuturisticHolographicTheme from "@/themes/FuturisticHolographicTheme";
+import ElegantLightTheme from "@/themes/ElegantLightTheme";
+import BrutalistTheme from "@/themes/BrutalistTheme";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("about");
-  const { loading } = usePortfolio();
+  const { data, loading } = usePortfolio();
 
   const navigateToAdmin = () => {
     window.location.href = '/#/admin';
@@ -135,33 +148,36 @@ const Index = () => {
       </div>
 
       {/* All Sections */}
-      <section id="about" className="scroll-mt-20">
-        <About />
-      </section>
-      
-      <SectionDivider />
-      
-      <section id="education" className="scroll-mt-20">
-        <Education />
-      </section>
-      
-      <SectionDivider />
-      
-      <section id="experience" className="scroll-mt-20">
-        <Experience />
-      </section>
-      
-      <SectionDivider />
-      
-      <section id="projects" className="scroll-mt-20">
-        <Projects />
-      </section>
-      
-      <SectionDivider />
-      
-      <section id="contact" className="scroll-mt-20">
-        <Contact />
-      </section>
+      {(() => {
+        switch (data.personalInfo.theme) {
+          case "dark-glow":
+            return <DarkGlowTheme />;
+          case "light-professional":
+            return <LightProfessionalTheme />;
+          case "neon-cyberpunk":
+            return <NeonCyberpunkTheme />;
+          case "retro-classic":
+            return <RetroClassicTheme />;
+          case "minimalist-clean":
+            return <MinimalistCleanTheme />;
+          case "nature-inspired":
+            return <NatureInspiredTheme />;
+          case "retro-wave":
+            return <RetroWaveTheme />;
+          case "cyberpunk":
+            return <CyberpunkTheme />;
+          case "minimalist-dark":
+            return <MinimalistDarkTheme />;
+          case "futuristic-holographic":
+            return <FuturisticHolographicTheme />;
+          case "elegant-light":
+            return <ElegantLightTheme />;
+          case "brutalist":
+            return <BrutalistTheme />;
+          default:
+            return <DefaultTheme />;
+        }
+      })()}
       
       {/* Admin Login Button at Bottom */}
       <div className="py-12 bg-muted/20">

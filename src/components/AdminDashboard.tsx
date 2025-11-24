@@ -14,7 +14,8 @@ import EditContact from "./admin/EditContact";
 import EditAnalytics from "./admin/EditAnalytics";
 import EditAbout from "./admin/EditAbout";
 import EditBlog from "./admin/EditBlog";
-import { User, Briefcase, GraduationCap, FolderOpen, Mail, BarChart3, Settings, Menu, Home, LogOut, Info, Newspaper } from "lucide-react";
+import EditTheme from "./admin/EditTheme";
+import { User, Briefcase, GraduationCap, FolderOpen, Mail, BarChart3, Settings, Menu, Home, LogOut, Info, Newspaper, Palette } from "lucide-react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const AdminDashboard = () => {
     { id: "blog", label: "Blog", icon: Newspaper },
     { id: "contact", label: "Contact", icon: Mail },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "theme", label: "Theme", icon: Palette },
     { id: "debug", label: "Debug Storage", icon: Settings },
   ];
 
@@ -131,6 +133,8 @@ const AdminDashboard = () => {
         return <DebugStorage />;
       case "blog":
         return <EditBlog />;
+      case "theme":
+        return <EditTheme />;
       default:
         return <EditProfile />;
     }
