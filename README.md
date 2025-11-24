@@ -8,18 +8,26 @@ Visit: **https://myportfolio-50a76.web.app**
 ## ✨ Key Features
 
 ### 🎨 **Design & UX**
+- **Multiple UI Themes**: Choose from 7+ distinct UI designs for the home page via the admin panel.
 - Modern, minimalist design with smooth animations
-- Dark/Light theme support
+- Dark/Light theme support via a dedicated theme toggle.
 - Fully responsive - optimized for mobile, tablet, and desktop
 - Touch-friendly interface
 
+### 📝 **Blog**
+- **Integrated Blog**: Write and publish blog posts using a rich text editor.
+- **Content Creation**: Supports images, links, and various text formatting options.
+- **Public Blog Page**: A dedicated page to display all blog posts.
+
 ### 🛠️ **Admin Dashboard**
 - Complete content management system
+- **Drag-and-Drop Reordering**: Easily reorder projects, experiences, and education entries.
 - Real-time updates across all connected browsers
 - No page refresh needed - changes appear instantly
 - Media upload with Firebase Storage integration
 
 ### 📊 **Content Management**
+- **Theme Selection**: Instantly switch the home page's UI theme.
 - **Personal Profile** - Manage name, bio, profile picture, and contact info
 - **Projects** - Showcase projects with descriptions, images, PDFs, and links
 - **Experience** - Display work history with achievements
@@ -45,6 +53,9 @@ Visit: **https://myportfolio-50a76.web.app**
 |----------|-----------|
 | **Frontend** | React 18 + TypeScript |
 | **Styling** | Tailwind CSS + Shadcn/UI |
+| **Animation** | Framer Motion |
+| **Drag & Drop** | @hello-pangea/dnd |
+| **Rich Text Editor** | React Quill |
 | **Build Tool** | Vite |
 | **Backend** | Firebase (Firestore + Storage) |
 | **Deployment** | Firebase Hosting |
