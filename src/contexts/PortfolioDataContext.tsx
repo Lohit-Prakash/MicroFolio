@@ -62,6 +62,15 @@ export interface PersonalInfo {
   profileImage?: string;
 }
 
+export interface Blog {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AboutSection {
   vision: string;
   educationDesc: string;
@@ -75,6 +84,7 @@ interface PortfolioData {
   projects: Project[];
   experience: Experience[];
   education: Education[];
+  blogs: Blog[];
   aboutSection: AboutSection;
 }
 
@@ -131,6 +141,7 @@ const mockData: PortfolioData = {
     researchAreas: ["Drone Technology", "Control Systems", "Power Electronics", "Machine Learning"],
     keySkills: ["Python", "C++", "MATLAB", "Simulink", "CATIA", "ANSYS"],
   },
+  blogs: [],
 };
 
 
@@ -154,6 +165,11 @@ interface PortfolioContextType {
   removeEducation: (id: string) => Promise<void>;
   updateEducationOrder: (orderedIds: string[]) => Promise<void>; // New reorder function
 
+  addBlog: (blog: Omit<Blog, 'id'>) => Promise<void>;
+  updateBlog: (blog: Blog) => Promise<void>;
+  removeBlog: (id: string) => Promise<void>;
+  updateBlogsOrder: (orderedIds: string[]) => Promise<void>;
+
   updateAboutSection: (about: AboutSection) => Promise<void>;
   seedDatabase: () => Promise<void>;
 }
@@ -171,8 +187,13 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     const docRef = doc(db, "portfolios", userId);
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        console.log("Data fetched from Firestore:", docSnap.data());
-        setData(docSnap.data() as PortfolioData);
+        const firestoreData = docSnap.data() as PortfolioData;
+        // Ensure blogs property exists
+        if (!firestoreData.blogs) {
+          firestoreData.blogs = [];
+        }
+        console.log("Data fetched from Firestore:", firestoreData);
+        setData(firestoreData);
       } else {
         // If no data, seed the database with mock data
         setDoc(docRef, mockData);
@@ -258,6 +279,22 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     await updateFirestore({ education: updatedEducation });
   };
 
+  const addBlog = async (blog: Omit<Blog, 'id'>) => {
+    const newBlog = { ...blog, id: crypto.randomUUID(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    const updatedBlogs = [...data.blogs, newBlog];
+    await updateFirestore({ blogs: updatedBlogs });
+  };
+
+  const updateBlog = async (blog: Blog) => {
+    const updatedBlogs = data.blogs.map((b) => (b.id === blog.id ? { ...blog, updatedAt: new Date().toISOString() } : b));
+    await updateFirestore({ blogs: updatedBlogs });
+  };
+
+  const removeBlog = async (id: string) => {
+    const updatedBlogs = data.blogs.filter((b) => b.id !== id);
+    await updateFirestore({ blogs: updatedBlogs });
+  };
+
   const updateProjectsOrder = async (orderedIds: string[]) => {
     const orderedProjects = orderedIds.map(id => data.projects.find(proj => proj.id === id)).filter(Boolean) as Project[];
     await updateFirestore({ projects: orderedProjects });
@@ -282,6 +319,11 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     await setDoc(docRef, mockData);
   };
 
+  const updateBlogsOrder = async (orderedIds: string[]) => {
+    const orderedBlogs = orderedIds.map(id => data.blogs.find(b => b.id === id)).filter(Boolean) as Blog[];
+    await updateFirestore({ blogs: orderedBlogs });
+  };
+
   return (
     <PortfolioContext.Provider value={{
       data,
@@ -300,6 +342,10 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       updateEducation,
       removeEducation,
       updateEducationOrder,
+      addBlog,
+      updateBlog,
+      removeBlog,
+      updateBlogsOrder,
       updateAboutSection,
       seedDatabase
     }}>

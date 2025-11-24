@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { User, Briefcase, FolderOpen, GraduationCap, Mail, LogIn } from "lucide-react";
+import { User, Briefcase, FolderOpen, GraduationCap, Mail, LogIn, Newspaper } from "lucide-react";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Education from "@/components/Education";
@@ -98,6 +98,15 @@ const Index = () => {
                 <Briefcase className="w-4 h-4" />
                 <span className="hidden sm:inline">Experience</span>
               </Button>
+              <a href="/#/blog">
+                <Button
+                  variant="ghost"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all`}
+                >
+                  <Newspaper className="w-4 h-4" />
+                  <span className="hidden sm:inline">Blog</span>
+                </Button>
+              </a>
               <Button
                 variant="ghost"
                 onClick={() => scrollToSection('projects')}

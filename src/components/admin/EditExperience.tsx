@@ -9,7 +9,7 @@ import { usePortfolio, Experience } from "@/contexts/PortfolioDataContext";
 import { useToast } from "@/hooks/use-toast";
 import FileOrLinkInput from "./FileOrLinkInput";
 import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
-import { Plus, Trash2, X, Briefcase, Edit2 } from "lucide-react";
+import { Plus, Trash2, X, Briefcase, Edit2, GripVertical } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const EditExperience = () => {
@@ -407,20 +407,32 @@ const EditExperience = () => {
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="experience-list">
           {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="grid gap-6">
+            <div {...provided.droppableProps} ref={provided.innerRef} className="grid gap-6 transition-all duration-300">
               {data.experience.length === 0 ? (
                 <p className="text-center text-muted-foreground">No experience entries yet. Add one above!</p>
               ) : (
                 data.experience.map((experience, index) => (
                   <Draggable key={experience.id} draggableId={experience.id} index={index}>
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <Card
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="card-modern hover-lift animate-slide-in"
-                        style={{ animationDelay: `${index * 0.1}s` }}
+                        className={`card-modern hover-lift animate-slide-in transition-all duration-300 ${
+                          snapshot.isDragging
+                            ? "opacity-50 shadow-2xl scale-105"
+                            : "shadow-md"
+                        }`}
                       >
+                        {snapshot.isDragging && (
+                          <div
+                            className="absolute inset-0 bg-white rounded-lg"
+                            style={{
+                              transform: `translate(0, ${
+                                snapshot.draggingOver ? "10px" : "0"
+                              })`,
+                            }}
+                          />
+                        )}
                         <CardHeader className="pb-4">
                           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                             <div className="flex-1 min-w-0">
@@ -458,7 +470,17 @@ const EditExperience = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          <p className="text-sm text-muted-foreground leading-relaxed">{experience.description}</p>
+                          <div className="flex justify-between items-start mb-4">
+                            <div
+                              {...provided.dragHandleProps}
+                              className="flex items-center justify-center p-2 rounded-lg hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-colors group mr-4"
+                            >
+                              <GripVertical className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-muted-foreground leading-relaxed">{experience.description}</p>
+                            </div>
+                          </div>
                           {experience.achievements.length > 0 && (
                             <div className="space-y-2">
                               <h4 className="text-sm font-semibold text-foreground/80">Key Achievements:</h4>
@@ -477,8 +499,11 @@ const EditExperience = () => {
                     )}
                   </Draggable>
                 )))
+
               }
-              {provided.placeholder}
+              <div className="transition-all duration-300">
+                {provided.placeholder}
+              </div>
             </div>
           )}
         </Droppable>

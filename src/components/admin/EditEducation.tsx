@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { usePortfolio, Education } from "@/contexts/PortfolioDataContext";
 import FileOrLinkInput from "./FileOrLinkInput";
 import { normalizeMediaUrlsToGCS } from "@/lib/gcs-upload";
-import { GraduationCap, Plus, Edit2, Trash2, X, Image, FileText } from "lucide-react";
+import { GraduationCap, Plus, Edit2, Trash2, X, Image, FileText, GripVertical } from "lucide-react";
 
 const EditEducation = () => {
   const { toast } = useToast();
@@ -484,17 +484,38 @@ const EditEducation = () => {
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="education-list">
           {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4 transition-all duration-300">
               {data.education.map((education, index) => (
                 <Draggable key={education.id} draggableId={education.id} index={index}>
-                  {(provided) => (
+                  {(provided, snapshot) => (
                     <Card
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      {...provided.dragHandleProps}>
+                      className={`transition-all duration-300 ${
+                        snapshot.isDragging
+                          ? "opacity-50 shadow-2xl scale-105"
+                          : "shadow-md"
+                      }`}
+                    >
+                      {snapshot.isDragging && (
+                        <div
+                          className="absolute inset-0 bg-white rounded-lg"
+                          style={{
+                            transform: `translate(0, ${
+                              snapshot.draggingOver ? "10px" : "0"
+                            })`,
+                          }}
+                        />
+                      )}
                       <CardContent className="p-6">
                         <div className="flex justify-between items-start mb-4">
-                          <div>
+                          <div
+                            {...provided.dragHandleProps}
+                            className="flex items-center justify-center p-2 rounded-lg hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-colors group mr-4"
+                          >
+                            <GripVertical className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
+                          </div>
+                          <div className="flex-1">
                             <h3 className="text-xl font-semibold">{education.degree}</h3>
                             <p className="text-primary font-medium">{education.institution}</p>
                             <p className="text-muted-foreground">{education.location} • {education.period}</p>
@@ -573,7 +594,10 @@ const EditEducation = () => {
                   )}
                 </Draggable>
               ))}
-              {provided.placeholder}
+
+              <div className="transition-all duration-300">
+                {provided.placeholder}
+              </div>
             </div>
           )}
         </Droppable>

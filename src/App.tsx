@@ -10,6 +10,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./components/Login";
 import AdminDashboard from "./components/AdminDashboard";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import { logPageView, logCustomEvent } from "@/lib/analytics";
 
 const queryClient = new QueryClient();
@@ -50,6 +52,8 @@ const App = () => {
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:id" element={<BlogPost />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

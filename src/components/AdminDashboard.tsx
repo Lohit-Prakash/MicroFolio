@@ -13,7 +13,8 @@ import EditEducation from "./admin/EditEducation";
 import EditContact from "./admin/EditContact";
 import EditAnalytics from "./admin/EditAnalytics";
 import EditAbout from "./admin/EditAbout";
-import { User, Briefcase, GraduationCap, FolderOpen, Mail, BarChart3, Settings, Menu, Home, LogOut, Info } from "lucide-react";
+import EditBlog from "./admin/EditBlog";
+import { User, Briefcase, GraduationCap, FolderOpen, Mail, BarChart3, Settings, Menu, Home, LogOut, Info, Newspaper } from "lucide-react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const AdminDashboard = () => {
     { id: "projects", label: "Projects", icon: FolderOpen },
     { id: "experience", label: "Experience", icon: Briefcase },
     { id: "education", label: "Education", icon: GraduationCap },
+    { id: "blog", label: "Blog", icon: Newspaper },
     { id: "contact", label: "Contact", icon: Mail },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "debug", label: "Debug Storage", icon: Settings },
@@ -127,6 +129,8 @@ const AdminDashboard = () => {
         // lazy import to avoid adding to main bundle
         const DebugStorage = require("./admin/DebugStorage").default;
         return <DebugStorage />;
+      case "blog":
+        return <EditBlog />;
       default:
         return <EditProfile />;
     }
